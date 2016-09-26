@@ -1,28 +1,5 @@
 {
   "name": "soros",
   "version": "1.0.0",
-  "description": "soros",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha --reporter spec ./test/*.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/kaelzhang/soros.git"
-  },
-  "keywords": [
-    "soros"
-  ],
-  "engines": {
-    "node": ">=0.10.0"
-  },
-  "author": "kaelzhang",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kaelzhang/soros/issues"
-  },
-  "devDependencies": {
-    "mocha": "*",
-    "chai": "*"
-  }
+  "private": true
 }
