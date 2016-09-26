@@ -1,6 +1,6 @@
 {
   "name": "moving-averages",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "moving-averages",
   "main": "index.js",
   "scripts": {
