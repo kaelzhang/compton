@@ -1,0 +1,27 @@
+{
+  "name": "candlestick-chart",
+  "version": "1.0.0",
+  "description": "candlestick-chart",
+  "main": "index.js",
+  "scripts": {
+    "test": "ava --verbose --timeout=10s"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kaelzhang/candlestick-chart.git"
+  },
+  "keywords": [
+    "candlestick-chart"
+  ],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "author": "kaelzhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaelzhang/candlestick-chart/issues"
+  },
+  "devDependencies": {
+    "ava": "^0.16.0"
+  }
+}
