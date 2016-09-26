@@ -1,17 +1,17 @@
 {
-  "name": "candlestick-chart",
-  "version": "0.0.4",
-  "description": "candlestick-chart",
+  "name": "soros-chart",
+  "version": "1.0.0",
+  "description": "soros-chart",
   "main": "index.js",
   "scripts": {
     "test": "ava --verbose --timeout=10s"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kaelzhang/candlestick-chart.git"
+    "url": "git://github.com/kaelzhang/soros-chart.git"
   },
   "keywords": [
-    "candlestick-chart"
+    "soros-chart"
   ],
   "engines": {
     "node": ">=0.10.0"
@@ -19,12 +19,9 @@
   "author": "kaelzhang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kaelzhang/candlestick-chart/issues"
+    "url": "https://github.com/kaelzhang/soros-chart/issues"
   },
   "devDependencies": {
     "ava": "^0.16.0"
-  },
-  "dependencies": {
-    "data-source": "^0.0.5"
   }
 }

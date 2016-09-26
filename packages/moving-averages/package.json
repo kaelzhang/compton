@@ -23,5 +23,8 @@
   },
   "devDependencies": {
     "ava": "^0.16.0"
+  },
+  "dependencies": {
+    "data-source": "^0.0.5"
   }
 }

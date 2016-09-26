@@ -1,7 +1,7 @@
 {
   "name": "data-source",
   "version": "0.0.5",
-  "description": "data-source",
+  "description": "data-source for stock data",
   "main": "index.js",
   "scripts": {
     "test": "ava --verbose --timeout=10s"
