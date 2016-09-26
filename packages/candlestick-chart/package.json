@@ -1,6 +1,6 @@
 {
   "name": "candlestick-chart",
-  "version": "1.0.0",
+  "version": "0.0.4",
   "description": "candlestick-chart",
   "main": "index.js",
   "scripts": {
