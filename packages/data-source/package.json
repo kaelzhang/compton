@@ -1,18 +1,17 @@
 {
-  "private": true,
-  "name": "soros",
-  "version": "0.0.1",
-  "description": "soros",
+  "name": "data-source",
+  "version": "0.0.5",
+  "description": "data-source",
   "main": "index.js",
   "scripts": {
     "test": "ava --verbose --timeout=10s"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kaelzhang/soros.git"
+    "url": "git://github.com/kaelzhang/data-source.git"
   },
   "keywords": [
-    "soros"
+    "data-source"
   ],
   "engines": {
     "node": ">=0.10.0"
@@ -20,7 +19,7 @@
   "author": "kaelzhang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kaelzhang/soros/issues"
+    "url": "https://github.com/kaelzhang/data-source/issues"
   },
   "devDependencies": {
     "ava": "^0.16.0"
