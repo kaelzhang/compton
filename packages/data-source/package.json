@@ -23,5 +23,8 @@
   },
   "devDependencies": {
     "ava": "^0.16.0"
+  },
+  "dependencies": {
+    "waterline": "^0.12.2"
   }
 }

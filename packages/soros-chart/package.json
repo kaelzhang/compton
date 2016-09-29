@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "soros-chart",
   "version": "1.0.0",
   "description": "soros-chart",
