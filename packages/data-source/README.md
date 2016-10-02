@@ -14,7 +14,6 @@
 
 # data-source
 
-<!-- description -->
 
 ## Install
 
@@ -25,7 +24,15 @@ $ npm install data-source --save
 ## Usage
 
 ```js
-const data_source = require('data-source')
+const DataSource = require('data-source')
+
+new DataSource({
+  connection,
+  load
+
+}).ready(dataSource => {
+  // dataSource, see design/design.js
+})
 ```
 
 ## License

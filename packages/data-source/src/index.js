@@ -4,15 +4,22 @@ const Waterline = require('waterline')
 const sailsMemoryAdapter = require('sails-memory')
 
 
+
+
 class DataSource {
-  constructor (name) {
-    super()
+  constructor ({
+    // waterline connection
+    connection,
 
-    this._name = name
+    // method to load timeShare
+    load
+
+  }) {
+
+    this._connection = connection
+    this._load = load
     this._waterline = new Waterline()
-  }
 
-  schema (schema) {
     this._schema = schema
 
     const TimeShareCollection = Waterline.Collection.extend({
@@ -22,15 +29,6 @@ class DataSource {
     })
 
     this._waterline.loadCollection(TimeShareCollection)
-    return this
-  }
-
-  proxy (loader) {
-
-  }
-
-  connect () {
-    return this
   }
 
   _config () {
@@ -47,7 +45,7 @@ class DataSource {
     }
   }
 
-  intialize (callback) {
+  ready (callback) {
     this._waterline.initialize(this._config(), (err, ontology) => {
       if (err) {
         return callback(err)
@@ -59,10 +57,24 @@ class DataSource {
       callback(null, model)
     })
   }
+
+  get () {
+
+  }
+
+  _loadTimeShare (date) {
+    this._load(date)
+      .then()
+  }
+
+  set () {
+
+  }
+
+  update () {
+
+  }
 }
-
-
-DataSource.Connection = Connection
 
 
 module.exports = DataSource
