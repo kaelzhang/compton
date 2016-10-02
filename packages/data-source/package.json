@@ -25,6 +25,7 @@
     "ava": "^0.16.0"
   },
   "dependencies": {
-    "waterline": "^0.12.2"
+    "waterline": "^0.12.2",
+    "time-spans": "^1.0.1"
   }
 }
