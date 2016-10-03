@@ -23,6 +23,7 @@
     "url": "https://github.com/kaelzhang/soros/issues"
   },
   "devDependencies": {
-    "ava": "^0.16.0"
+    "ava": "^0.16.0",
+    "request": "^2.75.0"
   }
 }

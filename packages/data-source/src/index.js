@@ -4,6 +4,7 @@ const {
   Time
 } = require('./time')
 
+
 class DataSource {
   constructor () {
 
@@ -66,10 +67,6 @@ class DataSource {
     }
   }
 
-  _load () {
-
-  }
-
   ready (callback) {
     this._waterline.initialize(this._config(), (err, ontology) => {
       if (err) {
@@ -77,9 +74,7 @@ class DataSource {
       }
 
       this._ontology = ontology
-
-      const model = ontology.collections[this._name]
-      callback(null, model)
+      callback(null, this)
     })
   }
 
@@ -124,9 +119,16 @@ class DataSource {
     return Promise.all(results)
   }
 
-  _loadTimeShare (date) {
-    this._load(date)
-      .then()
+  _load (date) {
+    return this._loader(date)
+    .then(() => {
+
+    })
+  }
+
+  _remoteLoadTimeShare (date) {
+    this._loader(date)
+    .then()
   }
 
   set () {
