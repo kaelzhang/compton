@@ -22,7 +22,8 @@
     "url": "https://github.com/kaelzhang/data-source/issues"
   },
   "devDependencies": {
-    "ava": "^0.16.0"
+    "ava": "^0.16.0",
+    "sails-disk": "^0.10.10"
   },
   "dependencies": {
     "waterline": "^0.12.2",

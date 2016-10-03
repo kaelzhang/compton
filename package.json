@@ -2,7 +2,9 @@
   "name": "soros",
   "version": "1.0.0",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+
+  },
   "devDependencies": {
     "sails-memory": "^0.10.7"
   }

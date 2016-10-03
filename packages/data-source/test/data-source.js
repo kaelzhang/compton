@@ -1,9 +1,9 @@
-const DataSource = require('.')
-
-const connection = new DataSource.Connection()
+const DataSource = require('..')
 
 const ds = new DataSource('time_share')
-  .scheme({
+  .connect('default', require('sails-disk'), true)
+  .scheme(name, {
+    closed: 'boolean'
     open  : 'float',
     high  : 'float',
     low   : 'float',
@@ -15,22 +15,7 @@ const ds = new DataSource('time_share')
       unique: true
     }
   })
-  .connect(connection)
+  .load()
+  .ready((dataSource) => {
 
-
-const model
-
-module.exports = (callback) => {
-  if (model) {
-    return callback(null, model)
-  }
-
-  ds.initialize((err, m) => {
-    if (err) {
-      return callback(err)
-    }
-
-    model = m
-    callback(null, m)
   })
-}
