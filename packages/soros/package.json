@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "ava": "^0.16.0",
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "lodash.padstart": "^4.6.1"
   }
 }

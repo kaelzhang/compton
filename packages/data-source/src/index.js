@@ -6,8 +6,9 @@ const {
 
 
 class DataSource {
-  constructor () {
+  constructor (code) {
 
+    this._code = code
     this._defaultConnection = null
     this._connections = {}
     this._waterline = new Waterline()
@@ -39,8 +40,8 @@ class DataSource {
     return this
   }
 
-  load (loader) {
-    this._loader = loader
+  loader (Loader) {
+    this._loader = new Loader(this._code)
     return this
   }
 
@@ -119,19 +120,26 @@ class DataSource {
     return Promise.all(results)
   }
 
-  _load (date) {
-    return this._loader(date)
-    .then(() => {
-
-    })
+  _remoteLoadTimeShare (time, span) {
+    return this._loader.load(time, span)
   }
 
-  _remoteLoadTimeShare (date) {
-    this._loader(date)
-    .then()
+  _create (name, value) {
+    const Model = this._ontology[name]
+
+    Model
+    .create(value)
   }
 
-  set () {
+  set ({
+    value,
+    span,
+    time
+  }) {
+    // value: timeShare,
+    // span: TimeSpan.WEEK,
+    // time: + new Date
+
 
   }
 

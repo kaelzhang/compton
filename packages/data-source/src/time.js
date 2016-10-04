@@ -19,6 +19,7 @@ const MINUTE15 = Symbol('minute15')
 const MINUTE = Symbol('minute')
 const SECOND = Symbol('second')
 
+
 const Constructor = {
   [MONTH]: Month,
   [WEEK]: Week,
@@ -31,8 +32,26 @@ const Constructor = {
 }
 
 
+const TIME_SPANS = {
+  MONTH,
+  WEEK,
+  DAY,
+  MINUTE60,
+  MINUTE30,
+  MINUTE15,
+  MINUTE,
+  SECOND
+}
+
+
 function Time (time, span) {
   const Class = Constructor[span]
 
   return new Class(time)
+}
+
+
+module.exports = {
+  Time,
+  TIME_SPANS
 }

@@ -1,5 +1,39 @@
-const test = require('ava')
+const DataSource = require('data-source')
+const QQLoader = require('../loader/stock.qq.com')
+const TIME_SPANS = DataSource.TIME_SPANS
 
-test('description', t => {
-  t.is(true, true)
-})
+new DataSource()
+  .connect('default', require('sails-disk'), true)
+  .scheme('m5', {
+    closed: 'boolean'
+    open  : 'float',
+    high  : 'float',
+    low   : 'float',
+    close : 'float',
+    time  : {
+      type  : 'float',
+      index : true,
+      unique: true
+    },
+    volume: 'integer'
+  })
+  .loader(QQLoader)
+  .ready((err, dataSource) => {
+    if (err) {
+      console.error(err)
+      process.exit(1)
+      return
+    }
+
+    dataSource.get({
+      span: TIME_SPANS.MINUTE5,
+      time: new Date(2016, 8, 30, 15)
+    })
+    .then((timeShare) => {
+      console.log(timeShare)
+    })
+    .catch((err) => {
+      console.error(err)
+      process.exit(1)
+    })
+  })
