@@ -28,7 +28,7 @@ function queue ({
 
     emitter.on(key, callback)
 
-    if (emitter.listerCount(key) === 1) {
+    if (emitter.listenerCount(key) === 1) {
       loadResource(param, load, retry)
       .then((data) => {
         results[key] = [null, data]

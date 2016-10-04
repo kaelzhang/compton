@@ -9,14 +9,11 @@ const {
 //  date            open    close   high    low     volume
 // ["201609300935","9.960","9.950","9.990","9.940","1164.000"]
 
-
-
 // referrer
 // http://gu.qq.com/sz300131?pgv_ref=fi_smartbox&_ver=2.0
 
 // req:
 // http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=sz300131,m5,,320&_var=m5_today&r=0.23718283001260598
-
 
 class Loader {
   constructor (code) {
@@ -24,7 +21,29 @@ class Loader {
 
     this._m5queue = queue({
       load: () => {
+        return new Promise((resolve, reject) => {
+          request({
+            url: `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m5,,10000`,
+            headers: {
+              'Referrer': `http://gu.qq.com/${code}?pgv_ref=fi_smartbox&_ver=2.0`,
+              'Host': 'ifzq.gtimg.cn',
+              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'
+            }
+          }, (err, response, body) => {
+            if (err) {
+              return reject(err)
+            }
 
+            let json
+            try {
+              json = JSON.parse(body)
+            } catch (e) {
+              return reject(e)
+            }
+
+            resolve(json)
+          })
+        })
       }
     })
   }
@@ -80,9 +99,9 @@ class Loader {
       time.getDate(),
       time.getHours(),
       time.getMinutes()
-    ].map(padNumber).join()
+    ].map(padNumber).join('')
 
-    return `${time.getMonth()}${right}`
+    return `${time.getFullYear()}${right}`
   }
 }
 
