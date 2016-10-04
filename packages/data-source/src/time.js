@@ -16,6 +16,7 @@ const DAY = Symbol('day')
 const MINUTE60 = Symbol('minute60')
 const MINUTE30 = Symbol('minute30')
 const MINUTE15 = Symbol('minute15')
+const MINUTE5 = Symbol('minute5')
 const MINUTE = Symbol('minute')
 const SECOND = Symbol('second')
 
@@ -27,6 +28,7 @@ const Constructor = {
   [MINUTE60]: Minute60,
   [MINUTE30]: Minute30,
   [MINUTE15]: Minute15,
+  [MINUTE5]: Minute5,
   [MINUTE]: Minute,
   [SECOND]: Second
 }
@@ -39,6 +41,7 @@ const TIME_SPANS = {
   MINUTE60,
   MINUTE30,
   MINUTE15,
+  MINUTE5,
   MINUTE,
   SECOND
 }

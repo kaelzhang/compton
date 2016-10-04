@@ -12,7 +12,6 @@ class DataSource {
     this._defaultConnection = null
     this._connections = {}
     this._waterline = new Waterline()
-    this._schema = schema
   }
 
   // waterline connection
@@ -86,8 +85,8 @@ class DataSource {
     time
   }) {
     return time
-      ? this._getOne(this._date(time, span))
-      : this._getMany(this._datePeriod(between, span))
+      ? this._getOne(this._date(time, span), span)
+      : this._getMany(this._datePeriod(between, span), span)
   }
 
   // @returns {Date}
@@ -111,8 +110,8 @@ class DataSource {
     return period
   }
 
-  _getOne (date) {
-
+  _getOne (time, span) {
+    return this._remoteLoadTimeShare(time, span)
   }
 
   _getMany (dates) {
@@ -125,10 +124,8 @@ class DataSource {
   }
 
   _create (name, value) {
-    const Model = this._ontology[name]
-
-    Model
-    .create(value)
+    const Model = this._ontology.collections[name]
+    return Model.create(value)
   }
 
   set ({

@@ -1,3 +1,5 @@
+module.exports = queue
+
 const { EventEmitter } = require('events')
 
 function queue ({
@@ -9,7 +11,7 @@ function queue ({
   const emitter = new EventEmitter()
   const results = {}
 
-  function add (param, callback) {
+  function add (param = '', callback) {
     let key
 
     if (arguments.length === 1) {
@@ -41,10 +43,21 @@ function queue ({
     }
   }
 
-  // expose cache so that we could handle it
-  add.cache = results
+  return {
+    // expose cache so that we could handle it
+    cache: results,
+    add: (param) => {
+      return new Promise((resolve, reject) => {
+        add(param, (err, data) => {
+          if (err) {
+            return reject(err)
+          }
 
-  return add
+          resolve(data)
+        })
+      })
+    }
+  }
 }
 
 

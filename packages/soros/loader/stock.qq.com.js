@@ -1,6 +1,9 @@
 const request = require('request')
 const queue = require('../lib/load-queue')
 const padStart = require('lodash.padstart')
+const {
+  TIME_SPANS
+} = require('data-source')
 
 
 //  date            open    close   high    low     volume
@@ -15,63 +18,59 @@ const padStart = require('lodash.padstart')
 // http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=sz300131,m5,,320&_var=m5_today&r=0.23718283001260598
 
 
-function loader (time, span) {
-  request()
-}
-
-
 class Loader {
   constructor (code) {
     this._code = code = code.toLowerCase()
 
-    this._m5queue = queue(() => {
-      request({
-        url: `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m5,,10000`,
-        headers: {
-          referrer: `http://gu.qq.com/${code}?pgv_ref=fi_smartbox&_ver=2.0`
-        }
-      })
+    this._m5queue = queue({
+      load: () => {
+
+      }
     })
+  }
+
+  load (time, span) {
+    if (span === TIME_SPANS.MINUTE5) {
+      return this._loadM5(time)
+    }
   }
 
   // used by
   _loadM5 (time) {
     // m5 queue has no params
-    this._m5queue((err, data) => {
-      if (err) {
-        return Promise.reject(err)
-      }
+    return this._m5queue
+      .add()
+      .then((data) => {
+        const stockTime = this._transformTime(time)
+        const m5s = data.data[this._code].m5
 
-      const stockTime = this._transformTime(time)
-      const m5s = data.data[this._code].m5
+        const index = m5s.findIndex((item) => {
+          return item[0] === stockTime
+        })
 
-      const index = m5s.findIndex((item) => {
-        return item[0] === stockTime
+        if (!~index) {
+          return Promise.resolve(null)
+        }
+
+        const found = m5s[index]
+        const [
+          ,
+          open,
+          close,
+          high,
+          low,
+          volume
+        ] = found
+
+        return Promise.resolve({
+          time,
+          open,
+          close,
+          high,
+          low,
+          volume
+        })
       })
-
-      if (!~index) {
-        return Promise.resolve(null)
-      }
-
-      const found = m5s[index]
-      const [
-        ,
-        open,
-        close,
-        high,
-        low,
-        volume
-      ] = found
-
-      return Promise.resolve({
-        time,
-        open,
-        close,
-        high,
-        low,
-        volume
-      })
-    })
   }
 
   // @param {Date} time
@@ -91,3 +90,6 @@ class Loader {
 function padNumber (number) {
   return padStart('' + number, 2, '0')
 }
+
+
+module.exports = Loader

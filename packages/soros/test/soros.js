@@ -2,10 +2,12 @@ const DataSource = require('data-source')
 const QQLoader = require('../loader/stock.qq.com')
 const TIME_SPANS = DataSource.TIME_SPANS
 
-new DataSource()
+console.log(TIME_SPANS)
+
+new DataSource('sz300131')
   .connect('default', require('sails-disk'), true)
-  .scheme('m5', {
-    closed: 'boolean'
+  .schema('m5', {
+    closed: 'boolean',
     open  : 'float',
     high  : 'float',
     low   : 'float',
