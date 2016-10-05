@@ -100,11 +100,12 @@ class DataSource {
     between = between.map(time => Time(time, span))
 
     const max = between[1].time()
-    let current = between[0]
+    const current = between[0]
+    let date
+    let offset = 0
 
-    while ((date = current.time()) < max) {
+    while ((date = current.offset(offset ++)) <= max) {
       period.push(date)
-      current = current.next()
     }
 
     return period
@@ -114,8 +115,8 @@ class DataSource {
     return this._remoteLoadTimeShare(time, span)
   }
 
-  _getMany (dates) {
-    const results = dates.map(date => this._getOne(date))
+  _getMany (dates, span) {
+    const results = dates.map(date => this._getOne(date, span))
     return Promise.all(results)
   }
 

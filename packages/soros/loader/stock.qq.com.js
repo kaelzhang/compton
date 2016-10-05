@@ -49,6 +49,10 @@ class Loader {
   }
 
   load (time, span) {
+    if (!span) {
+      throw new Error('span should be specified.')
+    }
+
     if (span === TIME_SPANS.MINUTE5) {
       return this._loadM5(time)
     }

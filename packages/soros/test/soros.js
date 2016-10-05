@@ -2,7 +2,6 @@ const DataSource = require('data-source')
 const QQLoader = require('../loader/stock.qq.com')
 const TIME_SPANS = DataSource.TIME_SPANS
 
-console.log(TIME_SPANS)
 
 new DataSource('sz300131')
   .connect('default', require('sails-disk'), true)
@@ -29,7 +28,11 @@ new DataSource('sz300131')
 
     dataSource.get({
       span: TIME_SPANS.MINUTE5,
-      time: new Date(2016, 8, 30, 15)
+      // time: new Date(2016, 8, 29, 15)
+      between: [
+        new Date(2016, 8, 29, 13),
+        new Date(2016, 8, 29, 15)
+      ]
     })
     .then((timeShare) => {
       console.log(timeShare)
