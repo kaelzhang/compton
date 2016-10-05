@@ -9,6 +9,8 @@ function queue ({
 }) {
 
   const emitter = new EventEmitter()
+  emitter.setMaxListeners(0)
+
   const results = {}
 
   function add (param = '', callback) {

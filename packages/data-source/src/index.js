@@ -1,9 +1,43 @@
 const Waterline = require('waterline')
 const {
   TIME_SPANS,
+  TIME_SPANS: {
+    MONTH,
+    WEEK,
+    DAY,
+    MINUTE60,
+    MINUTE30,
+    MINUTE15,
+    MINUTE5,
+    MINUTE,
+    SECOND
+  },
   Time
 } = require('./time')
 
+const NAMES_MAP = {
+  [MONTH]: 'month',
+  [WEEK]: 'week',
+  [DAY]: 'day',
+  [MINUTE60]: 'minute60',
+  [MINUTE30]: 'minute30',
+  [MINUTE15]: 'minute15',
+  [MINUTE5]: 'minute5',
+  [MINUTE]: 'minute',
+  [SECOND]: 'second'
+}
+
+const NAMES = [
+  MONTH,
+  WEEK,
+  DAY,
+  MINUTE60,
+  MINUTE30,
+  MINUTE15,
+  MINUTE5,
+  MINUTE,
+  SECOND
+]
 
 class DataSource {
   constructor (code) {
@@ -24,18 +58,23 @@ class DataSource {
     return this
   }
 
-  schema (name, schema, connection) {
+  schema (schema, connection) {
     if (!connection && !this._defaultConnection) {
       throw new Error('no default connection is specified')
     }
 
-    const TimeShareCollection = Waterline.Collection.extend({
-      identity: name,
-      connection: connection || this._defaultConnection,
-      attributes: schema
+    NAMES.forEach((span) => {
+      const name = NAMES_MAP[span]
+
+      const TimeShareCollection = Waterline.Collection.extend({
+        identity: name,
+        connection: connection || this._defaultConnection,
+        attributes: schema
+      })
+
+      this._waterline.loadCollection(TimeShareCollection)
     })
 
-    this._waterline.loadCollection(TimeShareCollection)
     return this
   }
 
@@ -112,7 +151,56 @@ class DataSource {
   }
 
   _getOne (time, span) {
-    return this._remoteLoadTimeShare(time, span)
+    const Model = this._getModel(span)
+
+    return Model.findOne({
+      time: time
+    })
+    .then((timeShare) => {
+      if (timeShare) {
+        return this._wrapTimeShare(timeShare, time)
+      }
+
+      // if there isn't one, load from the remote
+      return this._remoteLoadTimeShare(time, span)
+        .then((timeShare) => {
+          timeShare = !timeShare
+            ? {
+                closed: true,
+                time
+              }
+            : this._wrapTimeShare(timeShare, time)
+
+          // and then, create one
+          return Model.create(timeShare)
+            .then(() => {
+              return timeShare
+            })
+        })
+    })
+  }
+
+  _wrapTimeShare ({
+    open,
+    high,
+    low,
+    close,
+    volume,
+  }, time) {
+
+    return {
+      open,
+      high,
+      low,
+      close,
+      volume,
+      time
+    }
+  }
+
+  // @returns {Waterline.Collection}
+  _getModel (span) {
+    return this._ontology.collections[NAMES_MAP[span]]
   }
 
   _getMany (dates, span) {
@@ -122,11 +210,6 @@ class DataSource {
 
   _remoteLoadTimeShare (time, span) {
     return this._loader.load(time, span)
-  }
-
-  _create (name, value) {
-    const Model = this._ontology.collections[name]
-    return Model.create(value)
   }
 
   set ({

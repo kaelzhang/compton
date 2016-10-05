@@ -5,7 +5,8 @@ class TimeShare {
   high =,
   low =,
   close =,
-  volume =
+  volume =,
+  time
 }
 
 enum TimeSpan {
