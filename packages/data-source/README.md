@@ -26,13 +26,39 @@ $ npm install data-source --save
 ```js
 const DataSource = require('data-source')
 
-new DataSource({
-  connection,
-  load
+new DataSource('sz300131')
+  .connect('default', require('sails-disk'), true)
+  .schema({
+    closed: {
+      type: 'boolean',
+      defaultsTo: false
+    },
+    open  : NULLABLE_FLOAT,
+    high  : NULLABLE_FLOAT,
+    low   : NULLABLE_FLOAT,
+    close : NULLABLE_FLOAT,
+    time  : {
+      type  : 'datetime',
+      index : true,
+      unique: true
+    },
+    volume: 'integer'
+  })
+  .loader(QQLoader)
+  .ready((err, dataSource) => {
+    if (err) {
+      console.error(err)
+      process.exit(1)
+      return
+    }
 
-}).ready(dataSource => {
-  // dataSource, see design/design.js
-})
+new DataSource('stock code')
+  .connect('connection name', waterlineDb, isDefault)
+  .schema(schema)
+  .loader(LoaderToLoadRemoteData)
+  .ready((err, dataSource) => {
+    // dataSource, see design/design.js
+  })
 ```
 
 ## License

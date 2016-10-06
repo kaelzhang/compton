@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kaelzhang/data-source.git"
+    "url": "git://github.com/kaelzhang/soros.git"
   },
   "keywords": [
     "data-source"
@@ -19,7 +19,7 @@
   "author": "kaelzhang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kaelzhang/data-source/issues"
+    "url": "https://github.com/kaelzhang/soros/issues"
   },
   "devDependencies": {
     "ava": "^0.16.0",
