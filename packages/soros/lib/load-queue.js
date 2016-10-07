@@ -2,6 +2,20 @@ module.exports = queue
 
 const { EventEmitter } = require('events')
 
+// ```
+// const q = queue({
+//   load: (param) => {
+//     return new Promise()
+//   }
+// })
+//
+// q
+//   .add(param)
+//   .then(() => {
+
+//   })
+// ```
+
 function queue ({
   load,
   retry = 3

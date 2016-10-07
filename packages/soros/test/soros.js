@@ -34,7 +34,7 @@ new DataSource('sz300131')
     }
 
     dataSource.get({
-      span: TIME_SPANS.MINUTE5,
+      span: TIME_SPANS.WEEK,
       // time: new Date(2016, 8, 29, 15)
       between: [
         new Date(2016, 8, 29, 13),

@@ -156,25 +156,25 @@ class DataSource {
     return Model.findOne({
       time: time
     })
-    .then((timeShare) => {
-      if (timeShare) {
-        return this._wrapTimeShare(timeShare, time)
+    .then((candlestick) => {
+      if (candlestick) {
+        return this._wrapTimeShare(candlestick, time)
       }
 
       // if there isn't one, load from the remote
       return this._remoteLoadTimeShare(time, span)
-        .then((timeShare) => {
-          timeShare = !timeShare
+        .then((candlestick) => {
+          candlestick = !candlestick
             ? {
                 closed: true,
                 time
               }
-            : this._wrapTimeShare(timeShare, time)
+            : this._wrapTimeShare(candlestick, time)
 
           // and then, create one
-          return Model.create(timeShare)
+          return Model.create(candlestick)
             .then(() => {
-              return timeShare
+              return candlestick
             })
         })
     })
@@ -217,7 +217,7 @@ class DataSource {
     span,
     time
   }) {
-    // value: timeShare,
+    // value: candlestick,
     // span: TimeSpan.WEEK,
     // time: + new Date
 

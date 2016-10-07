@@ -1,13 +1,13 @@
-const sailsLocalDiskDB = require('sails-disk')
+// const sailsLocalDiskDB = require('sails-disk')
 
-module.exports = {
-  adapters: {
-    'disk': sailsLocalDiskDB
-  },
+// module.exports = {
+//   adapters: {
+//     'disk': sailsLocalDiskDB
+//   },
 
-  connections: {
-    default: {
-      adapter: 'disk'
-    }
-  }
-}
+//   connections: {
+//     default: {
+//       adapter: 'disk'
+//     }
+//   }
+// }

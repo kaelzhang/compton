@@ -28,7 +28,7 @@ dataSource
     // [datetimeStart, datetimeEnd)
     between: [datetimeStart, datetimeEnd],
   })
-  .then((timeShares : Array<TimeShare>) => {
+  .then((candlesticks : Array<TimeShare>) => {
 
   })
 
@@ -37,13 +37,13 @@ dataSource
     span: TimeSpan.WEEK,
     time: + new Date
   })
-  .then((timeShare: TimeShare) => {
+  .then((candlestick: TimeShare) => {
 
   })
 
 // 3
   .set({
-    value: timeShare,
+    value: candlestick,
     span: TimeSpan.WEEK,
     time: + new Date
   })
@@ -56,7 +56,7 @@ dataSource
 
 // 4
   .update({
-    value: timeShare,
+    value: candlestick,
     span: TimeSpan.DAY,
     time: + new Date
   })
