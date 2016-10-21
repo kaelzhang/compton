@@ -1,7 +1,8 @@
 const Waterline = require('waterline')
+const util = require('util')
 const {
-  TIME_SPANS,
-  TIME_SPANS: {
+  TIME_SPAN,
+  TIME_SPAN: {
     MONTH,
     WEEK,
     DAY,
@@ -12,10 +13,11 @@ const {
     MINUTE,
     SECOND
   },
+  AVAILABLE_TIME_SPANS,
   Time
 } = require('./time')
 
-const NAMES_MAP = {
+const SPAN_MAP = {
   [MONTH]: 'month',
   [WEEK]: 'week',
   [DAY]: 'day',
@@ -27,19 +29,8 @@ const NAMES_MAP = {
   [SECOND]: 'second'
 }
 
-const NAMES = [
-  MONTH,
-  WEEK,
-  DAY,
-  MINUTE60,
-  MINUTE30,
-  MINUTE15,
-  MINUTE5,
-  MINUTE,
-  SECOND
-]
 
-class DataSource {
+class DataSourceWrapper {
   constructor (code) {
 
     this._code = code
@@ -58,29 +49,57 @@ class DataSource {
     return this
   }
 
-  schema (schema, connection) {
+  open (checker) {
+    this._openChecker = checker
+    return this
+  }
+
+  schema (name, schema, connection) {
+    if (util.isArray(name)) {
+      name.forEach((name) => {
+        this._schema(name, schema, connection)
+      })
+
+      return this
+    }
+
+    if (Object(name) === name) {
+      connection = schema
+      schema = name
+
+      AVAILABLE_TIME_SPANS.forEach((span) => {
+        this._schema(SPAN_MAP[span], schema, connection)
+      })
+
+      return this
+    }
+
+    this._schema(name, schema, connection)
+    return this
+  }
+
+  _schema (name, schema, connection) {
     if (!connection && !this._defaultConnection) {
       throw new Error('no default connection is specified')
     }
 
-    NAMES.forEach((span) => {
-      const name = NAMES_MAP[span]
-
-      const TimeShareCollection = Waterline.Collection.extend({
-        identity: name,
-        connection: connection || this._defaultConnection,
-        attributes: schema
-      })
-
-      this._waterline.loadCollection(TimeShareCollection)
+    const CandlestickCollection = Waterline.Collection.extend({
+      identity: name,
+      connection: connection || this._defaultConnection,
+      attributes: schema
     })
 
-    return this
+    this._waterline.loadCollection(CandlestickCollection)
   }
 
   loader (Loader) {
     this._loader = new Loader(this._code)
     return this
+  }
+
+  // check whether the stock is suspended during a given time
+  suspended (time) {
+
   }
 
   _config () {
@@ -158,18 +177,18 @@ class DataSource {
     })
     .then((candlestick) => {
       if (candlestick) {
-        return this._wrapTimeShare(candlestick, time)
+        return this._wrapCandlestick(candlestick, time)
       }
 
       // if there isn't one, load from the remote
-      return this._remoteLoadTimeShare(time, span)
+      return this._remoteLoadCandlestick(time, span)
         .then((candlestick) => {
           candlestick = !candlestick
             ? {
                 closed: true,
                 time
               }
-            : this._wrapTimeShare(candlestick, time)
+            : this._wrapCandlestick(candlestick, time)
 
           // and then, create one
           return Model.create(candlestick)
@@ -180,7 +199,7 @@ class DataSource {
     })
   }
 
-  _wrapTimeShare ({
+  _wrapCandlestick ({
     open,
     high,
     low,
@@ -200,7 +219,7 @@ class DataSource {
 
   // @returns {Waterline.Collection}
   _getModel (span) {
-    return this._ontology.collections[NAMES_MAP[span]]
+    return this._ontology.collections[SPAN_MAP[span]]
   }
 
   _getMany (dates, span) {
@@ -208,28 +227,28 @@ class DataSource {
     return Promise.all(results)
   }
 
-  _remoteLoadTimeShare (time, span) {
+  _remoteLoadCandlestick (time, span) {
     return this._loader.load(time, span)
   }
 
-  set ({
-    value,
-    span,
-    time
-  }) {
-    // value: candlestick,
-    // span: TimeSpan.WEEK,
-    // time: + new Date
+  // set ({
+  //   value,
+  //   span,
+  //   time
+  // }) {
+  //   // value: candlestick,
+  //   // span: TimeSpan.WEEK,
+  //   // time: + new Date
 
 
-  }
+  // }
 
-  update () {
+  // update () {
 
-  }
+  // }
 }
 
 
-DataSource.TIME_SPANS = TIME_SPANS
+DataSourceWrapper.TIME_SPAN = TIME_SPAN
 
-module.exports = DataSource
+module.exports = DataSourceWrapper

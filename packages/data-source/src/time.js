@@ -20,6 +20,18 @@ const MINUTE5 = Symbol('minute5')
 const MINUTE = Symbol('minute')
 const SECOND = Symbol('second')
 
+const AVAILABLE_TIME_SPANS = [
+  MONTH,
+  WEEK,
+  DAY,
+  MINUTE60,
+  MINUTE30,
+  MINUTE15,
+  MINUTE5,
+  MINUTE,
+  SECOND
+]
+
 
 const Constructor = {
   [MONTH]: Month,
@@ -34,7 +46,7 @@ const Constructor = {
 }
 
 
-const TIME_SPANS = {
+const TIME_SPAN = {
   MONTH,
   WEEK,
   DAY,
@@ -56,5 +68,6 @@ function Time (time, span) {
 
 module.exports = {
   Time,
-  TIME_SPANS
+  TIME_SPAN,
+  AVAILABLE_TIME_SPANS
 }

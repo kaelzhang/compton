@@ -3,7 +3,7 @@ const node_url = require('url')
 const queue = require('../lib/load-queue')
 const padStart = require('lodash.padstart')
 const {
-  TIME_SPANS: {
+  TIME_SPAN: {
     MONTH,
     WEEK,
     DAY,
@@ -26,7 +26,8 @@ const {
 // req:
 // http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=sz300131,m5,,320&_var=m5_today&r=0.23718283001260598
 
-// if suspended: then not included
+// suspension
+// http://stockjs.finance.qq.com/sstock/list/suspension/js/sz000829.js?0.9345282303402396
 
 
 function loadData ({
@@ -205,4 +206,6 @@ function padNumber (number) {
 }
 
 
-module.exports = Loader
+module.exports = {
+  Loader
+}
