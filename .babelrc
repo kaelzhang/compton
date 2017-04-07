@@ -1,0 +1,11 @@
+{
+  "presets": [
+    "es2015"
+  ],
+  "plugins": [
+    "transform-class-properties",
+    "transform-object-rest-spread",
+    "syntax-trailing-function-commas",
+    "transform-es2015-modules-commonjs"
+  ]
+}

@@ -1,5 +1,6 @@
 # ignore local db
 *.db
+/packages/compton
 
 # Numerous always-ignore extensions
 *.bak

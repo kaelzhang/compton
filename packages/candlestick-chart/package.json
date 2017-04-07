@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "candlestick-chart",
   "version": "0.1.0",
   "description": "candlestick-chart",

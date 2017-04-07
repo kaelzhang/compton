@@ -1,11 +1,5 @@
 {
-  "name": "soros",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "sails-mysql": "^0.11.5"
-  },
   "devDependencies": {
-    "sails-memory": "^0.10.7"
+    "lerna": "^2.0.0-rc.0"
   }
 }
