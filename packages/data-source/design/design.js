@@ -1,5 +1,5 @@
 class TimeShare {
-  // whether is closed for the period of time
+  // Computed: whether is closed for the period of time
   closed: Boolean,
   // the inital value
   open =,
@@ -26,7 +26,7 @@ dataSource
 // 1
 .get({
   // 1 min
-  span: TimeSpan.MINUTE
+  span: 'MINUTE'
 
   // between, or time
 
@@ -40,7 +40,7 @@ dataSource
 
 // 2
 .get({
-  span: TimeSpan.WEEK,
+  span: 'WEEK',
   time: + new Date
 })
 .then((candlestick: TimeShare) => {
@@ -50,7 +50,7 @@ dataSource
 // 3
 .set({
   value: candlestick,
-  span: TimeSpan.WEEK,
+  span: 'WEEK',
   time: + new Date
 })
 .then(() => {
@@ -63,7 +63,7 @@ dataSource
 // 4
 .update({
   value: candlestick,
-  span: TimeSpan.DAY,
+  span: 'DAY',
   time: + new Date
 })
 .catch((err) => {
