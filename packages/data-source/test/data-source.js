@@ -1,5 +1,5 @@
 // const test = require('ava')
-const DB = require('../lib/db')
+const DB = require('../src/db')
 const LCache = require('layered-cache')
 const Layer = LCache.Layer
 const _LRU = require('lru-cache')
@@ -12,18 +12,20 @@ class LRU {
     })
   }
 
-  get (data) {
-    return this._cache.get(JSON.stringify(data))
+  get (key) {
+    return this._cache.get(JSON.stringify(key))
   }
 
-  set (data) {
-    return this._cache.get(JSON.stringify(data))
+  set (key, value) {
+    return this._cache.get(JSON.stringify(key))
   }
 }
 
 
 const memory = new Layer(new LRU)
-.on('data', console.log)
+.on('data', data => {
+  console.log('memory', data)
+})
 
 const db = new Layer(
   new DB({
@@ -61,4 +63,7 @@ cache.get({
 })
 .then(result => {
   console.log('result', result)
+})
+.catch(err => {
+  console.error(err)
 })

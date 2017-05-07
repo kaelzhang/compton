@@ -1,3 +1,5 @@
+const skema = require('skema')
+
 const candlestick = skema({
   rules: {
     open: {
