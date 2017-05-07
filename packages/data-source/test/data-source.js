@@ -1,3 +1,6 @@
+const CODE = 'sz002239'
+const DATE = new Date(2017, 4, 5, 11, 8)
+
 // const test = require('ava')
 const DB = require('../src/db')
 const LCache = require('layered-cache')
@@ -23,9 +26,6 @@ class LRU {
 
 
 const memory = new Layer(new LRU)
-.on('data', data => {
-  console.log('memory', data)
-})
 
 const db = new Layer(
   new DB({
@@ -36,19 +36,13 @@ const db = new Layer(
       password: '123456',
       database: 'compton'
     },
-    code: 'sz002239'
+    code: CODE
   })
 )
-.on('data', data => {
-  console.log('db', data)
-})
 
 const remote = new Layer(
-  new Loader('sz002239')
+  new Loader(CODE)
 )
-.on('data', data => {
-  console.log('remote', data)
-})
 
 const cache = new LCache([
   memory,
@@ -59,7 +53,7 @@ const cache = new LCache([
 
 cache.get({
   span: 'DAY',
-  time: + new Date(2017, 4, 5, 11, 8)
+  time: + DATE
 })
 .then(result => {
   console.log('result', result)
