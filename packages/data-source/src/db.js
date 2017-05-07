@@ -54,7 +54,7 @@ function write_value (value) {
     low,
     close,
     volume,
-    time
+    time: new Date(time)
   }
 }
 

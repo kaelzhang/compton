@@ -1,9 +1,9 @@
-const test = require('ava')
+// const test = require('ava')
 const DB = require('../lib/db')
 const LCache = require('layered-cache')
 const Layer = LCache.Layer
 const _LRU = require('lru-cache')
-const Loader = require('../../loader/stock.qq.com')
+const Loader = require('../../compton/loader/stock.qq.com')
 
 class LRU {
   constructor () {
@@ -33,14 +33,17 @@ const db = new Layer(
       user: 'kael',
       password: '123456',
       database: 'compton'
-    }
+    },
+    code: 'sz002239'
   })
 )
 .on('data', data => {
   console.log('db', data)
 })
 
-const remote = new Layer(new Loader('sz002239'))
+const remote = new Layer(
+  new Loader('sz002239')
+)
 .on('data', data => {
   console.log('remote', data)
 })
@@ -52,15 +55,9 @@ const cache = new LCache([
 ])
 
 
-// cache.get({
-//   span: 'DAY',
-//   time: + new Date()
-// })
-
-
-remote.get({
+cache.get({
   span: 'DAY',
-  time: + new Date(2017, 4, 5, 14, 9)
+  time: + new Date(2017, 4, 5, 11, 8)
 })
 .then(result => {
   console.log('result', result)

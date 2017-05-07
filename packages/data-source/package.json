@@ -27,6 +27,7 @@
     "knex": "^0.13.0",
     "layered-cache": "^1.0.0",
     "lru-cache": "^4.0.2",
+    "mysql": "^2.13.0",
     "time-spans": "^1.0.1"
   }
 }
