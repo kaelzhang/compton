@@ -27,7 +27,7 @@ const candlestick = skema({
     close: {
       type: Number
     },
-    volumn: {
+    volume: {
       type: Number
     },
     time: {

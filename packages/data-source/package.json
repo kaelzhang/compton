@@ -4,7 +4,9 @@
   "description": "data-source for stock data",
   "main": "index.js",
   "scripts": {
-    "test": "ava --verbose --timeout=10s"
+    "build": "../../node_modules/.bin/babel src --out-dir lib",
+    "test": "npm run build && node --harmony ../../node_modules/.bin/ava --verbose --timeout=10s",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -20,10 +22,6 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kaelzhang/soros/issues"
-  },
-  "devDependencies": {
-    "ava": "^0.16.0",
-    "sails-disk": "^0.10.10"
   },
   "dependencies": {
     "knex": "^0.13.0",

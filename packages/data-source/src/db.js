@@ -33,7 +33,28 @@ class Client {
   }) {
 
     return this._client(`day_${this._code}`)
-    .insert(value)
+    .insert(write_value(value))
+  }
+}
+
+
+function write_value (value) {
+  const {
+    open,
+    high,
+    low,
+    close,
+    volume,
+    time
+  } = value
+
+  return {
+    open,
+    high,
+    low,
+    close,
+    volume,
+    time
   }
 }
 

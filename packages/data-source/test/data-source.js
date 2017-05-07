@@ -3,18 +3,7 @@ const DB = require('../lib/db')
 const LCache = require('layered-cache')
 const Layer = LCache.Layer
 const _LRU = require('lru-cache')
-
-const db = new Layer(
-  new DB({
-    client: 'mysql',
-    connection: {
-      host: '127.0.0.1',
-      user: 'kael',
-      password: '123456',
-      database: 'compton'
-    }
-  })
-)
+const Loader = require('../../loader/stock.qq.com')
 
 class LRU {
   constructor () {
@@ -34,9 +23,45 @@ class LRU {
 
 
 const memory = new Layer(new LRU)
+.on('data', console.log)
+
+const db = new Layer(
+  new DB({
+    client: 'mysql',
+    connection: {
+      host: '127.0.0.1',
+      user: 'kael',
+      password: '123456',
+      database: 'compton'
+    }
+  })
+)
+.on('data', data => {
+  console.log('db', data)
+})
+
+const remote = new Layer(new Loader('sz002239'))
+.on('data', data => {
+  console.log('remote', data)
+})
 
 const cache = new LCache([
-  new LRU(),
+  memory,
   db,
-  new Loader()
+  remote
 ])
+
+
+// cache.get({
+//   span: 'DAY',
+//   time: + new Date()
+// })
+
+
+remote.get({
+  span: 'DAY',
+  time: + new Date(2017, 4, 5, 14, 9)
+})
+.then(result => {
+  console.log('result', result)
+})
