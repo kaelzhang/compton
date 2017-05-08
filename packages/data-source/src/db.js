@@ -38,7 +38,6 @@ class Client {
     time
   }) {
 
-    span = span.toLowerCase()
     return this._queue.add(span)
     .then(
       () => this._get({
@@ -53,7 +52,6 @@ class Client {
     time
   }, value) {
 
-    span = span.toLowerCase()
     return this._queue.add(span)
     .then(
       () => this._set({
