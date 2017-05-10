@@ -29,6 +29,6 @@
     "lru-cache": "^4.0.2",
     "mysql": "^2.13.0",
     "ready-queue": "^1.0.0",
-    "time-spans": "^1.0.1"
+    "time-spans": "^2.0.0"
   }
 }

@@ -27,3 +27,15 @@ source.get({
 .catch(err => {
   console.error(err)
 })
+
+
+source.get({
+  span: 'DAY',
+  between: [ + new Date(2017, 4, 2), + new Date(2017, 4, 5) ]
+})
+.then(result => {
+  console.log('result', result)
+})
+.catch(err => {
+  console.error(err)
+})
