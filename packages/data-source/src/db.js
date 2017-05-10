@@ -33,6 +33,8 @@ class Client {
     })
   }
 
+  // Get the candlestick from db
+  // @returns `Candlestick`
   get ({
     span,
     time
@@ -62,9 +64,26 @@ class Client {
   }
 
   _prepare_table (span) {
+    const schema = this._client.schema
+    const name = `${span}_${this._code}`
+
+    return schema.hasTable(name).then(exists => {
+      if (exists) {
+        return
+      }
+
+      // If no
+      Promise.all([
+        this._create_table(name),
+        // create or update other records
+      ])
+    })
+  }
+
+  _create_table (name) {
     return this._client
     .schema
-    .createTableIfNotExists(`${span}_${this._code}`, table => {
+    .createTableIfNotExists(name, table => {
       table.increments('id').primary()
       table.float('open',   8, 3)
       table.float('high',   8, 3)

@@ -27,6 +27,12 @@ const _LRU = require('lru-cache')
 const LCache = require('layered-cache')
 // const Loader = require('../../compton/loader/stock.qq.com')
 
+function Time (time, span) {
+  const Klass = TIME_SPANS_MAP[span]
+  return new Klass(time)
+}
+
+
 class LRU {
   constructor () {
     this._cache = new _LRU({
@@ -45,9 +51,13 @@ class LRU {
 
 class DataSource {
   constructor ({
+    // @type `enum.<mysql>` only support `mysql` for now
     client,
+    // @type `Object` The knex connection
     connection,
+    // @type `String` The stock code, example: `sz000401`
     code,
+    // @type `Class`
     loader
   }) {
 
@@ -67,8 +77,11 @@ class DataSource {
   }
 
   get ({
+    // @type `String.<MONTH|DAY|...>`
     span,
+    // @type `Timestamp`
     time,
+    // @type `Array.<[start, end]>`
     between
   }) {
 
@@ -77,13 +90,24 @@ class DataSource {
     }
 
     return Promise.all(
-      this._get_between_times(span, between)
+      this._data_period(span, between)
       .map(time => this._get({span, time}))
     )
   }
 
-  _get_between_times (span, [start, end]) {
+  _data_period (span, between) {
+    const period = []
+    const [start, end] = between.map(time => Time(time, span))
 
+    const end_timestamp = end.timestamp()
+    let timestamp
+    let offset = 0
+
+    while ((timestamp = start.offset(offset ++)) <= end_timestamp) {
+      period.push(timestamp)
+    }
+
+    return period
   }
 
   _get (what) {
