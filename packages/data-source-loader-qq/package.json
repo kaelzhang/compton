@@ -1,0 +1,45 @@
+{
+  "name": "data-source-loader-qq",
+  "version": "1.0.0",
+  "description": "data-source loader for gu.qq.com",
+  "main": "index.js",
+  "scripts": {
+    "build": "../../node_modules/.bin/babel src --out-dir lib",
+    "test": "npm run build && node --harmony ../../node_modules/.bin/ava --verbose --timeout=10s",
+    "prepublish": "npm run build"
+  },
+  "files": [
+    "lib/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kaelzhang/data-source-loader-qq.git"
+  },
+  "keywords": [
+    "data-source-loader-qq",
+    "data-source",
+    "fintech",
+    "financial",
+    "stock"
+  ],
+  "engines": {
+    "node": ">=4"
+  },
+  "author": "kaelzhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaelzhang/data-source-loader-qq/issues"
+  },
+  "ava": {
+    "require": "babel-register",
+    "babel": {
+      "babelrc": true
+    },
+    "files": [
+      "test/*.js"
+    ]
+  },
+  "dependencies": {
+    "babel-runtime": "^6.23.0"
+  }
+}
