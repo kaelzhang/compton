@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "candlestick-chart",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "candlestick-chart",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,6 @@
     "ava": "^0.16.0"
   },
   "dependencies": {
-    "data-source": "^0.1.0"
+    "data-source": "^1.0.0"
   }
 }
