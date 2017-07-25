@@ -2,7 +2,7 @@ const CODE = 'sz002239'
 const DATE = new Date(2017, 4, 5)
 
 const DataSource = require('..')
-const Loader = require('../../compton/loader/stock.qq.com')
+const Loader = require('data-source-loader-qq')
 
 const source = new DataSource({
   client: 'mysql',
@@ -22,7 +22,7 @@ source.get({
   time: + DATE
 })
 .then(result => {
-  console.log('result', result)
+  console.log('single result', result)
 })
 .catch(err => {
   console.error(err)
@@ -34,7 +34,7 @@ source.get({
   between: [ + new Date(2017, 6, 2), + new Date(2017, 6, 5) ]
 })
 .then(result => {
-  console.log('result', result)
+  console.log('between result', result)
 })
 .catch(err => {
   console.error(err)
