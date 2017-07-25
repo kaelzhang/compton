@@ -14,7 +14,7 @@
 
 # data-source-loader-qq
 
-<!-- description -->
+data-source loader for gu.qq with lru-cache
 
 ## Install
 
@@ -25,7 +25,22 @@ $ npm install data-source-loader-qq --save
 ## Usage
 
 ```js
-const data_source_loader_qq = require('data-source-loader-qq')
+const Loader = require('data-source-loader-qq')
+
+new Loader('sz000002').get({
+  time: + new Date,
+  span: 'DAY'
+})
+.then(({
+  open,
+  close,
+  high,
+  low,
+  volume
+}) => {
+
+  // do something ...
+})
 ```
 
 ## License

@@ -2,6 +2,10 @@ const request = require('request')
 const node_url = require('url')
 const padStart = require('lodash.padstart')
 const Queue = require('pending-queue')
+const {
+  Month,
+  Week
+} = require('time-spans')
 
 //  date            open    close   high    low     volume
 // ["201609300935","9.960","9.950","9.990","9.940","1164.000"]
@@ -15,49 +19,57 @@ const Queue = require('pending-queue')
 // suspension
 // http://stockjs.finance.qq.com/sstock/list/suspension/js/sz000829.js?0.9345282303402396
 
+
+
+
 const PRESETS = [
   {
     span: 'MINUTE5',
     key: 'minute5',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m5,,10000',
     prop: 'm5',
-    // TODO
-    // time
+    time: datetimeString
   },
 
   {
     span: 'MINUTE15',
     key: 'minute15',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m15,,10000',
-    prop: 'm15'
+    prop: 'm15',
+    time: datetimeString
   },
 
   {
     span: 'MINUTE30',
     key: 'minute30',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m30,,10000',
-    prop: 'm30'
+    prop: 'm30',
+    time: datetimeString
   },
 
   {
     span: 'MINUTE60',
     key: 'minute60',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m60,,10000',
-    prop: 'm60'
+    prop: 'm60',
+    time: datetimeString
   },
 
   {
     span: 'MONTH',
     key: 'month',
-    url: 'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},month,,,320,qfq',
-    prop: 'qfqmonth'
+    url:
+    'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_monthqfq&param={code},month,,,320,qfq',
+    prop: 'qfqmonth',
+    match: (time, record_time) => new Month(time).inPeriod(record_time)
   },
 
   {
     span: 'WEEK',
     key: 'week',
     url: 'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},week,,,320,qfq',
-    prop: 'qfqweek'
+    prop: 'qfqweek',
+    match: (time, record_time) => new Week(time).inPeriod(record_time)
   },
 
   {
@@ -65,7 +77,7 @@ const PRESETS = [
     key: 'day',
     url: 'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},day,,,10000,qfq',
     prop: 'qfqday',
-    time: time => {
+    time (time) {
       time = new Date(time)
 
       const right = [
@@ -130,7 +142,12 @@ class Loader {
     this._cache = {}
   }
 
-  async get ({time, span}) {
+  async get ({
+    // `Date`
+    time,
+    // `Enum.<DAY|...>`
+    span
+  }) {
     if (!span) {
       return Promise.reject(new Error('span should be specified.'))
     }
@@ -139,7 +156,7 @@ class Loader {
 
     // Nothing in the cache
     if (!cached) {
-      return this._fetch({time, span})
+      return this._fetch(time, span)
     }
 
     const {
@@ -158,13 +175,13 @@ class Loader {
     }
   }
 
-  _fetch ({time, span}) {
+  // Fetch data from remote
+  _fetch (time, span) {
     return queue.add({
       span,
       code: this._code
     })
     .then(data => {
-      console.log('data', data)
       const url = PRESET_MAP[span].url
       this._cache[span] = data
 
@@ -172,16 +189,23 @@ class Loader {
     })
   }
 
-  // used by
+  // Search result from data
   _parse (data, span, time) {
     const preset = PRESET_MAP[span]
 
     // m5 queue has no params
-    const stock_time = preset.time(time)
+    const stock_time = preset.time
+      ? preset.time(time)
+      : time
+
     const candlesticks = data.data[this._code][preset.prop]
 
-    const index = candlesticks.findIndex((item) => {
-      return item[0] === stock_time
+    const index = candlesticks.findIndex(([record_time]) => {
+      if (preset.match) {
+        return preset.match(stock_time, record_time)
+      }
+
+      return stock_time === record_time
     })
 
     if (!~index) {
@@ -200,7 +224,7 @@ class Loader {
       high,
       low,
       volume
-    ] = found
+    ] = found.map(Number)
 
     return {
       value: {
@@ -218,6 +242,18 @@ class Loader {
 
 function padNumber (number) {
   return padStart('' + number, 2, '0')
+}
+
+
+function datetimeString (time) {
+  const right = [
+    time.getMonth() + 1,
+    time.getDate(),
+    time.getHours(),
+    time.getMinutes()
+  ].map(padNumber).join('')
+
+  return `${time.getFullYear()}-${right}`
 }
 
 
