@@ -31,7 +31,7 @@ source.get({
 
 source.get({
   span: 'DAY',
-  between: [ + new Date(2017, 4, 2), + new Date(2017, 4, 5) ]
+  between: [ + new Date(2017, 6, 2), + new Date(2017, 6, 5) ]
 })
 .then(result => {
   console.log('result', result)

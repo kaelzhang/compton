@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kaelzhang/soros.git"
+    "url": "git://github.com/kaelzhang/compton.git"
   },
   "keywords": [
     "data-source"
@@ -29,6 +29,7 @@
     "lru-cache": "^4.0.2",
     "mysql": "^2.13.0",
     "ready-queue": "^1.0.0",
+    "skema": "^5.0.1",
     "time-spans": "^2.0.0"
   }
 }

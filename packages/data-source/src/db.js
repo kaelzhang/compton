@@ -2,17 +2,6 @@ const knex = require('knex')
 const queue = require('ready-queue')
 const {candlestick} = require('./schema')
 
-// CREATE TABLE day_sz002239 (
-//   id INTEGER NOT NULL AUTO_INCREMENT,
-//   open FLOAT(7, 2) NOT NULL,
-//   high FLOAT(7, 2) NOT NULL,
-//   low FLOAT(7, 2) NOT NULL,
-//   close FLOAT(7, 2) NOT NULL,
-//   volumn INTEGER UNSIGNED NOT NULL,
-//   time DATETIME NOT NULL,
-//   PRIMARY KEY (id)
-// )
-
 
 class Client {
   constructor ({
@@ -80,6 +69,16 @@ class Client {
     })
   }
 
+  // CREATE TABLE day_sz002239 (
+  //   id INTEGER NOT NULL AUTO_INCREMENT,
+  //   open FLOAT(7, 2) NOT NULL,
+  //   high FLOAT(7, 2) NOT NULL,
+  //   low FLOAT(7, 2) NOT NULL,
+  //   close FLOAT(7, 2) NOT NULL,
+  //   volumn INTEGER UNSIGNED NOT NULL,
+  //   time DATETIME NOT NULL,
+  //   PRIMARY KEY (id)
+  // )
   _create_table (name) {
     return this._client
     .schema
