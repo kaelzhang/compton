@@ -14,6 +14,7 @@
 
 # data-source
 
+data-source for stock data
 
 ## Install
 
@@ -40,6 +41,22 @@ new DataSource({
 .get({
   span: 'MONTH',
   time: + new Date(2017, 4, 1)
+})
+.then(({
+  // `Number` open price
+  open,
+  // `Number` the highest price
+  high,
+  // `Number` the lowest price
+  low,
+  // `Number` the close price
+  close,
+  // `Number` the volume of transactions
+  volume,
+  // `Date` time
+  time
+}) => {
+  console.log(`sz300131 opened with ${open} at 2017-05-01`)
 })
 ```
 
