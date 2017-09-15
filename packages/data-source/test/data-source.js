@@ -4,6 +4,10 @@ const DATE = new Date(2017, 4, 5)
 const DataSource = require('..')
 const Loader = require('data-source-loader-qq')
 
+const {
+  Candlesticks
+} = require('candlesticks')
+
 const source = new DataSource({
   client: 'mysql',
   connection: {
