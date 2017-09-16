@@ -1,28 +1,19 @@
-[![Build Status](https://travis-ci.org/kaelzhang/soros.svg?branch=master)](https://travis-ci.org/kaelzhang/soros)
-<!-- optional npm version
-[![NPM version](https://badge.fury.io/js/soros.svg)](http://badge.fury.io/js/soros)
--->
-<!-- optional npm downloads
-[![npm module downloads per month](http://img.shields.io/npm/dm/soros.svg)](https://www.npmjs.org/package/soros)
--->
-<!-- optional dependency status
-[![Dependency Status](https://david-dm.org/kaelzhang/soros.svg)](https://david-dm.org/kaelzhang/soros)
--->
+[![Build Status](https://travis-ci.org/kaelzhang/compton.svg?branch=master)](https://travis-ci.org/kaelzhang/compton)
 
-# soros
+# compton
 
 <!-- description -->
 
 ## Install
 
 ```sh
-$ npm install soros --save
+$ npm install compton
 ```
 
 ## Usage
 
 ```js
-var soros = require('soros');
+import compton from 'compton'
 ```
 
 ## License
