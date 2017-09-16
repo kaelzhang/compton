@@ -54,12 +54,16 @@ export default class DataSource {
     time,
     // @type `Array.<[start: Date, end?: Date]>`
     between,
-    // @type `Boolean`
-    latest
+    // @type `Number`
+    limit
   }) {
 
-    if (time || latest) {
-      return this._get({span, time, latest})
+    if (!between && !time) {
+      return this._get({span, limit})
+    }
+
+    if (time) {
+      return this._get({span, time})
     }
 
     const period = this._data_period(span, between)
@@ -69,11 +73,13 @@ export default class DataSource {
 
     // If there is no end, then also get the lastest
     if (!between[1]) {
-      tasks.push(this._get({span, latest: true}))
+      tasks.push(this._get({span, limit: 1}))
     }
 
     return Promise.all(tasks)
-    .then(results => {
+    .then(r => {
+      
+      const results = r.filter(Boolean)
       const length = results.length
       const last = results[length - 1]
       const second_last = results[length - 2]

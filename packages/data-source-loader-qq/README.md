@@ -43,6 +43,32 @@ new Loader('sz000002').get({
 })
 ```
 
+## get({span, time})
+
+Gets a candlestick data by time
+
+- **span** `Enum.<MONTH|WEEK|DAY|MINUTE60|MINUTE30|MINITE15|MINITE5>` time span
+- **time** `Date` the specified time.
+
+Returns `Candlestick`
+
+### struct `Candlestick`
+
+- open
+- high
+- low
+- close
+- volume
+- time
+
+## get({span, limit})
+
+Gets the latest `limit` pieces of data
+
+- **limit** `Number=` if `limit` is not a number, then it will no limit.
+
+Returns `Array.<Candlestick>`
+
 ## License
 
 MIT

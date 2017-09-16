@@ -60,6 +60,24 @@ new DataSource({
 })
 ```
 
+## get({span, time})
+
+Gets a single datum.
+
+- **time** `Date`
+
+## get({span, between})
+
+Gets data between a period.
+
+- **between** `[start: Date, end?: Date]`
+
+## get({span, limit})
+
+Gets the latest data limit by `limit`
+
+- **limit** `Number=`
+
 ## License
 
 MIT

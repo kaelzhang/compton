@@ -151,20 +151,20 @@ export default class Loader {
     time,
     // `Enum.<DAY|...>`
     span,
-    // `Boolean` if specified, `time` will be useless
-    latest,
-    // `Number` available if `latest == true`
-    amount
+    // `Number` limit the item of results
+    limit
   }) {
 
     if (!span) {
       return Promise.reject(new Error('span should be specified.'))
     }
 
-    if (latest) {
-      return this._fetchLatest(span, !amount || typeof amount !== 'number'
-        ? 1
-        : amount)
+    if (!time) {
+      limit = typeof limit !== 'number' || limit <= 0
+        ? -1
+        : limit
+
+      return this._fetchLatest(span, limit)
     }
 
     const cached = this._cache[span]
@@ -186,7 +186,7 @@ export default class Loader {
 
     // If the cached data is too old, fetch new data
     if (data_too_old) {
-      return this._fetch({time, span})
+      return this._fetch(time, span)
     }
   }
 
