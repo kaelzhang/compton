@@ -1,11 +1,11 @@
-const request = require('request')
-const node_url = require('url')
-const padStart = require('lodash.padstart')
-const Queue = require('pending-queue')
-const {
+import request from 'request'
+import node_url from 'url'
+import padStart from 'lodash.padstart'
+import Queue from 'pending-queue'
+import {
   Month,
   Week
-} = require('time-spans')
+} from 'time-spans'
 
 //  date            open    close   high    low     volume
 // ["201609300935","9.960","9.950","9.990","9.940","1164.000"]
@@ -18,8 +18,6 @@ const {
 
 // suspension
 // http://stockjs.finance.qq.com/sstock/list/suspension/js/sz000829.js?0.9345282303402396
-
-
 
 
 const PRESETS = [
@@ -142,7 +140,7 @@ const queue = new Queue({
 })
 
 
-class Loader {
+export default class Loader {
   constructor (code) {
     this._code = code.toLowerCase()
     this._cache = {}
@@ -307,6 +305,3 @@ function datetimeString (time) {
 
   return `${time.getFullYear()}-${right}`
 }
-
-
-module.exports = Loader

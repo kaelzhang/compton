@@ -23,6 +23,15 @@
   "engines": {
     "node": ">=0.10.0"
   },
+  "ava": {
+    "require": "babel-register",
+    "babel": {
+      "babelrc": true
+    },
+    "files": [
+      "test/*.js"
+    ]
+  },
   "author": "kaelzhang",
   "license": "MIT",
   "bugs": {

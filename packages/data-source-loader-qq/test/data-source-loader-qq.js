@@ -1,5 +1,5 @@
-const test = require('ava')
-const Loader = require('../src')
+import test from 'ava'
+import Loader from '../src'
 
 test('basic', async t => {
   const loader = new Loader('sz002239')

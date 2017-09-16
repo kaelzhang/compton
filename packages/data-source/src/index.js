@@ -73,13 +73,33 @@ export default class DataSource {
     }
 
     return Promise.all(tasks)
+    .then(results => {
+      const length = results.length
+      const last = results[length - 1]
+      const second_last = results[length - 2]
+
+      if (!last || !second_last) {
+        return results
+      }
+
+      if (+ second_last.time === + last.time) {
+        results.pop()
+      }
+
+      return results
+    })
   }
 
   _data_period (span, between) {
-    between = between || new Date()
+    if (!between[1]) {
+      between[1] = new Date
+    }
 
     const period = []
-    const [start, end] = between.map(time => Time(time, span))
+    const [
+      start,
+      end
+    ] = between.map(time => Time(time, span))
 
     const end_timestamp = end.timestamp()
     let timestamp
