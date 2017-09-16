@@ -152,7 +152,9 @@ export default class Loader {
     // `Enum.<DAY|...>`
     span,
     // `Boolean` if specified, `time` will be useless
-    latest
+    latest,
+    // `Number` available if `latest == true`
+    amount
   }) {
 
     if (!span) {
@@ -160,7 +162,9 @@ export default class Loader {
     }
 
     if (latest) {
-      return this._fetchLatest(span)
+      return this._fetchLatest(span, !amount || typeof amount !== 'number'
+        ? 1
+        : amount)
     }
 
     const cached = this._cache[span]
@@ -209,34 +213,14 @@ export default class Loader {
     })
   }
 
-  _fetchLatest (span) {
+  _fetchLatest (span, amount) {
     return this._fetchAll(span)
     .then(candlesticks => {
-      const latest = candlesticks[candlesticks.length - 1]
-      const [
-        timestring,
-        open,
-        close,
-        high,
-        low,
-        volume
-      ] = latest
+      const data = amount === -1
+        ? candlesticks
+        : candlesticks.slice(candlesticks.length - amount)
 
-      const preset = PRESET_MAP[span]
-
-      // Transform time string -> Date
-      const time = preset.time
-        ? preset.time(timestring)
-        : new Date(timestring)
-
-      return {
-        time,
-        open,
-        high,
-        low,
-        close,
-        volume
-      }
+      return data.map(datum => convertDatum(datum, span))
     })
   }
 
@@ -304,4 +288,32 @@ function datetimeString (time) {
   ].map(padNumber).join('')
 
   return `${time.getFullYear()}-${right}`
+}
+
+
+function convertDatum (datum, span) {
+  const [
+    timestring,
+    open,
+    close,
+    high,
+    low,
+    volume
+  ] = datum
+
+  const preset = PRESET_MAP[span]
+
+  // Transform time string -> Date
+  const time = preset.time
+    ? preset.time(timestring)
+    : new Date(timestring)
+
+  return {
+    time,
+    open,
+    high,
+    low,
+    close,
+    volume
+  }
 }
