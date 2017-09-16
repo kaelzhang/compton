@@ -1,36 +1,7 @@
-const {
-  Second,
-  Minute,
-  Minute5,
-  Minute15,
-  Minute30,
-  Minute60,
-  Day,
-  Week,
-  Month
-} = require('time-spans')
-
-const TIME_SPANS_MAP = {
-  'SECOND'  : Second,
-  'MINUTE'  : Minute,
-  'MINUTE5' : Minute5,
-  'MINUTE15': Minute15,
-  'MINUTE30': Minute30,
-  'MINUTE60': Minute60,
-  'DAY'     : Day,
-  'WEEK'    : Week,
-  'Month'   : Month
-}
-
-const DB = require('./db')
-const _LRU = require('lru-cache')
-const LCache = require('layered-cache')
-// const Loader = require('../../compton/loader/stock.qq.com')
-
-function Time (time, span) {
-  const Klass = TIME_SPANS_MAP[span]
-  return new Klass(time)
-}
+import DB from './db'
+import Time from './time'
+import _LRU from 'lru-cache'
+import LCache from 'layered-cache'
 
 
 class LRU {
@@ -49,7 +20,7 @@ class LRU {
   }
 }
 
-class DataSource {
+export default class DataSource {
   constructor ({
     // @type `enum.<mysql>` only support `mysql` for now
     client,
@@ -81,21 +52,32 @@ class DataSource {
     span,
     // @type `Timestamp`
     time,
-    // @type `Array.<[start, end]>`
-    between
+    // @type `Array.<[start: Date, end?: Date]>`
+    between,
+    // @type `Boolean`
+    latest
   }) {
 
-    if (time) {
-      return this._get({span, time})
+    if (time || latest) {
+      return this._get({span, time, latest})
     }
 
-    return Promise.all(
-      this._data_period(span, between)
-      .map(time => this._get({span, time}))
+    const period = this._data_period(span, between)
+    const tasks = period.map(
+      time => this._get({span, time})
     )
+
+    // If there is no end, then also get the lastest
+    if (!between[1]) {
+      tasks.push(this._get({span, latest: true}))
+    }
+
+    return Promise.all(tasks)
   }
 
   _data_period (span, between) {
+    between = between || new Date()
+
     const period = []
     const [start, end] = between.map(time => Time(time, span))
 
@@ -118,6 +100,3 @@ class DataSource {
     return this._cache.set(what, value)
   }
 }
-
-
-module.exports = DataSource

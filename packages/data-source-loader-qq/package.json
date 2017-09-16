@@ -4,12 +4,14 @@
   "description": "data-source loader for gu.qq.com",
   "main": "lib/index.js",
   "scripts": {
-    "build": "../../node_modules/.bin/babel src --out-dir lib",
-    "test": "npm run build && node --harmony ../../node_modules/.bin/ava --verbose --timeout=10s",
-    "prepublish": "npm run build"
+    "build": "BABEL_ENV=babel ../../node_modules/.bin/babel src -d lib",
+    "test": "BABEL_ENV=ava ../../node_modules/.bin/nyc ../../node_modules/.bin/ava --verbose --timeout=10s",
+    "prepublish": "npm run build",
+    "report-cov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
   "files": [
-    "lib/"
+    "lib/",
+    "src/"
   ],
   "repository": {
     "type": "git",
@@ -40,10 +42,10 @@
     ]
   },
   "dependencies": {
-    "babel-runtime": "^6.23.0",
+    "babel-runtime": "^6.26.0",
     "lodash.padstart": "^4.6.1",
     "pending-queue": "^1.2.0",
     "request": "^2.81.0",
-    "time-spans": "^2.2.0"
+    "time-spans": "^3.0.0"
   }
 }

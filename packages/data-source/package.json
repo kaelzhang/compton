@@ -4,10 +4,15 @@
   "description": "data-source for stock data",
   "main": "lib/index.js",
   "scripts": {
-    "build": "../../node_modules/.bin/babel src --out-dir lib",
-    "test": "npm run build && node --harmony ../../node_modules/.bin/ava --verbose --timeout=10s",
-    "prepublish": "npm run build"
+    "build": "BABEL_ENV=babel ../../node_modules/.bin/babel src -d lib",
+    "test": "BABEL_ENV=ava ../../node_modules/.bin/nyc ../../node_modules/.bin/ava --verbose --timeout=10s",
+    "prepublish": "npm run build",
+    "report-cov": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
   },
+  "files": [
+    "lib/",
+    "src/"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/kaelzhang/compton.git"
@@ -28,11 +33,11 @@
   },
   "dependencies": {
     "knex": "^0.13.0",
-    "layered-cache": "^1.0.0",
+    "layered-cache": "^1.1.0",
     "lru-cache": "^4.0.2",
-    "mysql": "^2.13.0",
+    "mysql": "^2.14.1",
     "ready-queue": "^1.0.0",
     "skema": "^5.0.1",
-    "time-spans": "^2.0.0"
+    "time-spans": "^3.0.0"
   }
 }

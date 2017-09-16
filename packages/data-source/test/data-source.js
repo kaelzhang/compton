@@ -1,12 +1,13 @@
 const CODE = 'sz002239'
 const DATE = new Date(2017, 4, 5)
 
-const DataSource = require('..')
-const Loader = require('data-source-loader-qq')
+import DataSource from '../src'
+import Loader from 'data-source-loader-qq'
 
-const {
+import {
   Candlesticks
-} = require('candlesticks')
+} from 'candlesticks'
+
 
 const source = new DataSource({
   client: 'mysql',

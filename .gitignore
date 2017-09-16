@@ -3,6 +3,7 @@ lib
 # ignore local db
 *.db
 /packages/compton
+.nyc_output
 
 # Numerous always-ignore extensions
 *.bak

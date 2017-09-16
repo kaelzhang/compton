@@ -1,6 +1,6 @@
-const skema = require('skema')
+import skema from 'skema'
 
-const candlestick = skema({
+const _candlestick = skema({
   rules: {
     open: {
       type: Number
@@ -25,6 +25,4 @@ const candlestick = skema({
 })
 
 
-module.exports = {
-  candlestick: data => candlestick.parse(data)
-}
+export const candlestick = data => _candlestick.parse(data)

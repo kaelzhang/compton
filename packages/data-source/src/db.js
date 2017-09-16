@@ -1,9 +1,12 @@
-const knex = require('knex')
-const queue = require('ready-queue')
-const {candlestick} = require('./schema')
+import knex from 'knex'
+import queue from 'ready-queue'
 
+import {
+  candlestick
+} from './schema'
+import Time from './time'
 
-class Client {
+export default class Client {
   constructor ({
     client,
     connection,
@@ -50,6 +53,11 @@ class Client {
         time
       }, value)
     )
+  }
+
+  // Only save time that is 
+  validate ({span, time}) {
+    return Time(time, span).timestamp() === + time
   }
 
   _prepare_table (span) {
@@ -141,6 +149,3 @@ function write_value (value) {
     time: new Date(time)
   }
 }
-
-
-module.exports = Client

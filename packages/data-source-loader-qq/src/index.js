@@ -28,7 +28,7 @@ const PRESETS = [
     key: 'minute5',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m5,,10000',
     prop: 'm5',
-    time: datetimeString
+    formatTime: datetimeString
   },
 
   {
@@ -36,7 +36,7 @@ const PRESETS = [
     key: 'minute15',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m15,,10000',
     prop: 'm15',
-    time: datetimeString
+    formatTime: datetimeString
   },
 
   {
@@ -44,7 +44,7 @@ const PRESETS = [
     key: 'minute30',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m30,,10000',
     prop: 'm30',
-    time: datetimeString
+    formatTime: datetimeString
   },
 
   {
@@ -52,7 +52,7 @@ const PRESETS = [
     key: 'minute60',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m60,,10000',
     prop: 'm60',
-    time: datetimeString
+    formatTime: datetimeString
   },
 
   {
@@ -61,7 +61,8 @@ const PRESETS = [
     url:
     'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_monthqfq&param={code},month,,,320,qfq',
     prop: 'qfqmonth',
-    match: (time, record_time) => new Month(time).inPeriod(record_time)
+    match: (time, record_time) =>
+      new Month(time).inSamePeriod(record_time)
   },
 
   {
@@ -69,15 +70,20 @@ const PRESETS = [
     key: 'week',
     url: 'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},week,,,320,qfq',
     prop: 'qfqweek',
-    match: (time, record_time) => new Week(time).inPeriod(record_time)
+    match: (time, record_time) =>
+      new Week(time).inSamePeriod(record_time)
   },
 
   {
     span: 'DAY',
     key: 'day',
     url: 'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},day,,,10000,qfq',
+    // The key of the response data
     prop: 'qfqday',
-    time (time) {
+
+    // Transform request time -> response time format
+    // Date -> 2017-09-01
+    formatTime (time) {
       time = new Date(time)
 
       const right = [
@@ -146,10 +152,17 @@ class Loader {
     // `Date`
     time,
     // `Enum.<DAY|...>`
-    span
+    span,
+    // `Boolean` if specified, `time` will be useless
+    latest
   }) {
+
     if (!span) {
       return Promise.reject(new Error('span should be specified.'))
+    }
+
+    if (latest) {
+      return this._fetchLatest(span)
     }
 
     const cached = this._cache[span]
@@ -177,28 +190,66 @@ class Loader {
 
   // Fetch data from remote
   _fetch (time, span) {
+    return this._fetchAll(span)
+    .then(candlesticks => {
+      return this._parse(candlesticks, span, time).value
+    })
+  }
+
+  // @returns candlesticks
+  _fetchAll (span) {
     return queue.add({
       span,
       code: this._code
     })
     .then(data => {
-      const url = PRESET_MAP[span].url
-      this._cache[span] = data
+      const preset = PRESET_MAP[span]
+      const candlesticks = data.data[this._code][preset.prop]
+      this._cache[span] = candlesticks
 
-      return this._parse(data, span, time).value
+      return candlesticks
+    })
+  }
+
+  _fetchLatest (span) {
+    return this._fetchAll(span)
+    .then(candlesticks => {
+      const latest = candlesticks[candlesticks.length - 1]
+      const [
+        timestring,
+        open,
+        close,
+        high,
+        low,
+        volume
+      ] = latest
+
+      const preset = PRESET_MAP[span]
+
+      // Transform time string -> Date
+      const time = preset.time
+        ? preset.time(timestring)
+        : new Date(timestring)
+
+      return {
+        time,
+        open,
+        high,
+        low,
+        close,
+        volume
+      }
     })
   }
 
   // Search result from data
-  _parse (data, span, time) {
+  _parse (candlesticks, span, time) {
     const preset = PRESET_MAP[span]
 
     // m5 queue has no params
-    const stock_time = preset.time
-      ? preset.time(time)
+    const stock_time = preset.formatTime
+      ? preset.formatTime(time)
       : time
-
-    const candlesticks = data.data[this._code][preset.prop]
 
     const index = candlesticks.findIndex(([record_time]) => {
       if (preset.match) {
@@ -208,6 +259,7 @@ class Loader {
       return stock_time === record_time
     })
 
+    // If not found
     if (!~index) {
       const [latest_time] = candlesticks[candlesticks.length - 1]
       return {
