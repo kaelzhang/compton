@@ -41,6 +41,11 @@ export default class Client {
     )
   }
 
+  mget (...keys) {
+    return this._queue.add(keys[0].span)
+    .then(() => this._mget(keys))
+  }
+
   set ({
     span,
     time
@@ -55,9 +60,14 @@ export default class Client {
     )
   }
 
-  // Only save time that is 
-  validate ({span, time}) {
-    return Time(time, span).timestamp() === + time
+  mset (...pairs) {
+    return this._queue.add(keys[0].span)
+    .then(() => this._mset(pairs))
+  }
+
+  // Only save candlestick that is closed
+  validate ({span, time}, value) {
+    return value && Time(time, span).timestamp() === + time
   }
 
   _prepare_table (span) {
@@ -119,6 +129,34 @@ export default class Client {
     })
   }
 
+  _mget (keys) {
+    const {span} = keys[0]
+
+    let matchedIndex = -1
+
+    return this._client
+    .select()
+    .from(`${span}_${this._code}`)
+    .whereIn('time', keys.map(({time}) => new Date(time)))
+    .then(rows => {
+      const results = keys.map(({time}) => {
+        let i = matchedIndex + 1
+        let row
+        const length = rows.length
+
+        for (; i < length; i ++) {
+          row = rows[i]
+          if (+ row.time === time) {
+            matchedIndex = i
+            return candlestick(row)
+          }
+        }
+      })
+
+      return Promise.all(results)
+    })
+  }
+
   _set ({
     span,
     time
@@ -126,6 +164,11 @@ export default class Client {
 
     return this._client(`${span}_${this._code}`)
     .insert(write_value(value))
+  }
+
+  _mset (pairs) {
+    return this._client(`${span}_${this._code}`)
+    .insert(pairs.map(([, value]) => write_value(value)))
   }
 }
 

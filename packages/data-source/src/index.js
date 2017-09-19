@@ -16,7 +16,7 @@ class LRU {
   }
 
   set (key, value) {
-    return this._cache.get(JSON.stringify(key))
+    return this._cache.set(JSON.stringify(key))
   }
 }
 
@@ -54,46 +54,29 @@ export default class DataSource {
     time,
     // @type `Array.<[start: Date, end?: Date]>`
     between,
-    // @type `Number`
-    limit
+    // @type `Boolean` get the latest candlestick
+    latest
   }) {
-
-    if (!between && !time) {
-      return this._get({span, limit})
-    }
 
     if (time) {
       return this._get({span, time})
     }
 
+    if (latest) {
+      return this._get({span, latest})
+    }
+
     const period = this._data_period(span, between)
-    const tasks = period.map(
-      time => this._get({span, time})
-    )
+    const tasks = period.map(time => {
+      return {span, time}
+    })
 
     // If there is no end, then also get the lastest
     if (!between[1]) {
-      tasks.push(this._get({span, limit: 1}))
+      tasks.push({span, latest: true})
     }
 
-    return Promise.all(tasks)
-    .then(r => {
-      
-      const results = r.filter(Boolean)
-      const length = results.length
-      const last = results[length - 1]
-      const second_last = results[length - 2]
-
-      if (!last || !second_last) {
-        return results
-      }
-
-      if (+ second_last.time === + last.time) {
-        results.pop()
-      }
-
-      return results
-    })
+    return this._cache.mget(...tasks)
   }
 
   _data_period (span, between) {
@@ -120,9 +103,5 @@ export default class DataSource {
 
   _get (what) {
     return this._cache.get(what)
-  }
-
-  set (what, value) {
-    return this._cache.set(what, value)
   }
 }

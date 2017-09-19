@@ -6,6 +6,7 @@ import {
   Month,
   Week
 } from 'time-spans'
+import map from 'array-map-sorted'
 
 //  date            open    close   high    low     volume
 // ["201609300935","9.960","9.950","9.990","9.940","1164.000"]
@@ -143,7 +144,26 @@ const queue = new Queue({
 export default class Loader {
   constructor (code) {
     this._code = code.toLowerCase()
-    this._cache = {}
+  }
+
+  async mget (...keys) {
+    const {span} = keys[0]
+
+    if (!span) {
+      return Promise.reject(new Error('span should be specified.'))
+    }
+
+    const candlesticks = this._fetchAll(span)
+    const length = candlesticks.length
+    return map(keys, candlesticks, ({time, latest}, candlestick, index, i) => {
+      if (latest) {
+        return i === length - 1
+      }
+
+      if (time) {
+        return time === + candlestick.time
+      }
+    })
   }
 
   async get ({
@@ -151,8 +171,8 @@ export default class Loader {
     time,
     // `Enum.<DAY|...>`
     span,
-    // `Number` limit the item of results
-    limit
+    // `Boolean` get the latest candlestick
+    latest
   }) {
 
     if (!span) {
@@ -160,34 +180,12 @@ export default class Loader {
     }
 
     if (!time) {
-      limit = typeof limit !== 'number' || limit <= 0
-        ? -1
-        : limit
-
-      return this._fetchLatest(span, limit)
+      if (latest) {
+        return this._fetchLatest(span)
+      }
     }
 
-    const cached = this._cache[span]
-
-    // Nothing in the cache
-    if (!cached) {
-      return this._fetch(time, span)
-    }
-
-    const {
-      value,
-      data_too_old
-    } = this._parse(cached, span, time)
-
-    // Data found
-    if (value) {
-      return value
-    }
-
-    // If the cached data is too old, fetch new data
-    if (data_too_old) {
-      return this._fetch(time, span)
-    }
+    return this._fetch(time, span)
   }
 
   // Fetch data from remote
@@ -206,21 +204,15 @@ export default class Loader {
     })
     .then(data => {
       const preset = PRESET_MAP[span]
-      const candlesticks = data.data[this._code][preset.prop]
-      this._cache[span] = candlesticks
-
-      return candlesticks
+      return data.data[this._code][preset.prop]
     })
   }
 
-  _fetchLatest (span, amount) {
+  _fetchLatest (span) {
     return this._fetchAll(span)
     .then(candlesticks => {
-      const data = amount === -1
-        ? candlesticks
-        : candlesticks.slice(candlesticks.length - amount)
-
-      return data.map(datum => convertDatum(datum, span))
+      const latest = candlesticks[candlesticks.length - 1]
+      return convertDatum(latest, span)
     })
   }
 

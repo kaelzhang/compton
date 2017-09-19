@@ -49,7 +49,7 @@ test('nothing...', async t => {
 
   const fromResult = await source.get({
     span: 'DAY',
-    between: [ + new Date(2017, 6, 2) ]
+    between: [ + new Date(2017, 8, 15) ]
   })
 
   console.log('from result', fromResult)
