@@ -27,7 +27,11 @@ test('nothing...', async t => {
   const source = new DataSource({
     connection,
     code: CODE,
-    loader: Loader
+    loader: Loader,
+    isTrading: (date) => {
+      const day = new Date(date).getDay()
+      return day !== 0 && day !== 6
+    }
   })
 
 
@@ -45,17 +49,17 @@ test('nothing...', async t => {
 
   console.log('between result', betweenResult)
 
-  const latestResult = await source.get({
-    span: 'DAY',
-    latest: true
-  })
-
-  console.log('latest result', latestResult)
-
-  const fromResult = await source.get({
-    span: 'DAY',
-    between: [ + new Date(2017, 8, 15) ]
-  })
-
-  console.log('from result', fromResult)
+  // const latestResult = await source.get({
+  //   span: 'DAY',
+  //   latest: true
+  // })
+  //
+  // console.log('latest result', latestResult)
+  //
+  // const fromResult = await source.get({
+  //   span: 'DAY',
+  //   between: [ + new Date(2017, 8, 15) ]
+  // })
+  //
+  // console.log('from result', fromResult)
 })

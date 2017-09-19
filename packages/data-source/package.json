@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "knex": "^0.13.0",
-    "layered-cache": "^2.0.2",
+    "layered-cache": "^2.1.0",
     "lru-cache": "^4.0.2",
     "mysql": "^2.14.1",
     "ready-queue": "^1.0.0",

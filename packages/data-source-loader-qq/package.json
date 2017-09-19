@@ -42,7 +42,7 @@
     ]
   },
   "dependencies": {
-    "array-map-sorted": "^1.1.0",
+    "array-map-sorted": "^1.2.0",
     "babel-runtime": "^6.26.0",
     "lodash.padstart": "^4.6.1",
     "pending-queue": "^1.2.0",

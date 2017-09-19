@@ -163,7 +163,7 @@ export default class Loader {
       if (time) {
         return time === + candlestick.time
       }
-    })
+    }, null)
   }
 
   async get ({
@@ -192,7 +192,7 @@ export default class Loader {
   _fetch (time, span) {
     return this._fetchAll(span)
     .then(candlesticks => {
-      return this._parse(candlesticks, span, time).value
+      return this._parse(candlesticks, span, time)
     })
   }
 
@@ -211,6 +211,10 @@ export default class Loader {
   _fetchLatest (span) {
     return this._fetchAll(span)
     .then(candlesticks => {
+      if (!candlesticks.length) {
+        return null
+      }
+
       const latest = candlesticks[candlesticks.length - 1]
       return convertDatum(latest, span)
     })
@@ -235,10 +239,7 @@ export default class Loader {
 
     // If not found
     if (!~index) {
-      const [latest_time] = candlesticks[candlesticks.length - 1]
-      return {
-        data_too_old: + latest_time < + stock_time
-      }
+      return null
     }
 
     const found = candlesticks[index]
@@ -253,14 +254,12 @@ export default class Loader {
     ] = found.map(Number)
 
     return {
-      value: {
-        time,
-        open,
-        close,
-        high,
-        low,
-        volume
-      }
+      time,
+      open,
+      close,
+      high,
+      low,
+      volume
     }
   }
 }

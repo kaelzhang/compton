@@ -36,7 +36,10 @@ new DataSource({
     database: ''
   },
   code: 'sz300131',
-  loader: Loader
+  loader: Loader,
+
+  // Always trading, ideally
+  isTrading: () => true
 })
 .get({
   span: 'MONTH',

@@ -20,6 +20,21 @@ class LRU {
   }
 }
 
+
+class Filter {
+  constructor (filter) {
+    this._filter = filter
+  }
+
+  async get ({time}) {
+    if (!time || await this._filter(time)) {
+      return
+    }
+
+    return null
+  }
+}
+
 export default class DataSource {
   constructor ({
     // @type `enum.<mysql>` only support `mysql` for now
@@ -29,7 +44,9 @@ export default class DataSource {
     // @type `String` The stock code, example: `sz000401`
     code,
     // @type `Class`
-    loader
+    loader,
+    // @type `function(value): Boolean` whether a stock market is trading
+    isTrading
   }) {
 
     const _loader = new loader(code)
@@ -41,13 +58,16 @@ export default class DataSource {
     const lru = new LRU
 
     this._cache = new LCache([
+      new Filter(isTrading),
       lru,
       db,
       _loader
-    ])
+    ], {
+      isNotFound: value => value === undefined
+    })
   }
 
-  get ({
+  async get ({
     // @type `String.<MONTH|DAY|...>`
     span,
     // @type `Timestamp`
@@ -66,8 +86,8 @@ export default class DataSource {
       return this._get({span, latest})
     }
 
-    const period = this._data_period(span, between)
-    const tasks = period.map(time => {
+    const periods = await this._data_period(span, between)
+    const tasks = periods.map(time => {
       return {span, time}
     })
 
@@ -84,7 +104,7 @@ export default class DataSource {
       between[1] = new Date
     }
 
-    const period = []
+    const periods = []
     const [
       start,
       end
@@ -95,10 +115,10 @@ export default class DataSource {
     let offset = 0
 
     while ((timestamp = start.offset(offset ++)) <= end_timestamp) {
-      period.push(timestamp)
+      periods.push(timestamp)
     }
 
-    return period
+    return periods
   }
 
   _get (what) {
