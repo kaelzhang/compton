@@ -2,6 +2,7 @@ const CODE = 'sz002239'
 const DATE = new Date(2017, 4, 5)
 
 import test from 'ava'
+import knex from 'knex'
 
 import DataSource from '../src'
 import Loader from 'data-source-loader-qq'
@@ -13,14 +14,18 @@ import {
 
 test('nothing...', async t => {
 
-  const source = new DataSource({
+  const connection = knex({
     client: 'mysql',
     connection: {
       host: '127.0.0.1',
       user: 'kael',
       password: '123456',
       database: 'compton'
-    },
+    }
+  })
+
+  const source = new DataSource({
+    connection,
     code: CODE,
     loader: Loader
   })

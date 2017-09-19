@@ -6,6 +6,12 @@ import {
 } from './schema'
 import Time from './time'
 
+
+// There is not a good way to detect knex instance
+const isKnex = knex => {
+  return knex && typeof knex.select === 'function'
+}
+
 export default class Client {
   constructor ({
     client,
@@ -15,10 +21,12 @@ export default class Client {
 
     this._code = code
 
-    this._client = knex({
-      client,
-      connection
-    })
+    this._client = isKnex(connection)
+      ? connection
+      : knex({
+        client,
+        connection
+      })
 
     this._queue = queue({
       load: span => this._prepare_table(span)
