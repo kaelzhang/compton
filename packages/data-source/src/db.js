@@ -31,6 +31,8 @@ export default class Client {
     this._queue = queue({
       load: span => this._prepare_table(span)
     })
+
+    this._isReady = {}
   }
 
   // Get the candlestick from db
@@ -40,7 +42,7 @@ export default class Client {
     time
   }) {
 
-    return this._queue.add(span)
+    return this._ready(span)
     .then(
       () => this._get({
         span,
@@ -50,7 +52,7 @@ export default class Client {
   }
 
   mget (...keys) {
-    return this._queue.add(keys[0].span)
+    return this._ready(keys[0].span)
     .then(() => this._mget(keys))
   }
 
@@ -59,7 +61,7 @@ export default class Client {
     time
   }, value) {
 
-    return this._queue.add(span)
+    return this._ready(span)
     .then(
       () => this._set({
         span,
@@ -69,8 +71,19 @@ export default class Client {
   }
 
   mset (...pairs) {
-    return this._queue.add(keys[0].span)
+    return this._ready(keys[0].span)
     .then(() => this._mset(pairs))
+  }
+
+  _ready (span) {
+    if (this._isReady[span]) {
+      return Promise.resolve()
+    }
+
+    return this._queue.add(span)
+    .then(() => {
+      this._isReady[span] = true
+    })
   }
 
   // Only save candlestick that is closed
