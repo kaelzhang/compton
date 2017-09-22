@@ -61,11 +61,11 @@ Returns `Candlestick`
 - volume
 - time
 
-## get({span, limit})
+## get({span, latest})
 
-Gets the latest `limit` pieces of data
+Gets the latest datum.
 
-- **limit** `Number=` if `limit` is not a number, then it will no limit.
+- **limit** `true`
 
 Returns `Array.<Candlestick>`
 

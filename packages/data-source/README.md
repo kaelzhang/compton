@@ -75,11 +75,11 @@ Gets data between a period.
 
 - **between** `[start: Date, end?: Date]`
 
-## get({span, limit})
+## get({span, latest})
 
-Gets the latest data limit by `limit`
+Gets the latest data
 
-- **limit** `Number=`
+- **limit** `true`
 
 ## License
 
