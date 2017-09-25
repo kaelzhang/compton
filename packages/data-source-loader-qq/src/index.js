@@ -2,11 +2,8 @@ import request from 'request'
 import node_url from 'url'
 import padStart from 'lodash.padstart'
 import Queue from 'pending-queue'
-import {
-  Month,
-  Week
-} from 'time-spans'
 import map from 'array-map-sorted'
+
 
 //  date            open    close   high    low     volume
 // ["201609300935","9.960","9.950","9.990","9.940","1164.000"]
@@ -27,7 +24,7 @@ const PRESETS = [
     key: 'minute5',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m5,,10000',
     prop: 'm5',
-    formatTime: datetimeString
+    formatTime: minuteString
   },
 
   {
@@ -35,7 +32,7 @@ const PRESETS = [
     key: 'minute15',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m15,,10000',
     prop: 'm15',
-    formatTime: datetimeString
+    formatTime: minuteString
   },
 
   {
@@ -43,7 +40,7 @@ const PRESETS = [
     key: 'minute30',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m30,,10000',
     prop: 'm30',
-    formatTime: datetimeString
+    formatTime: minuteString
   },
 
   {
@@ -51,7 +48,7 @@ const PRESETS = [
     key: 'minute60',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m60,,10000',
     prop: 'm60',
-    formatTime: datetimeString
+    formatTime: minuteString
   },
 
   {
@@ -60,8 +57,8 @@ const PRESETS = [
     url:
     'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_monthqfq&param={code},month,,,320,qfq',
     prop: 'qfqmonth',
-    match: (time, record_time) =>
-      new Month(time).inSamePeriod(record_time)
+    formatTime: dayString,
+    replace: string => string.replace(/^kline_monthqfq=/, '')
   },
 
   {
@@ -69,8 +66,9 @@ const PRESETS = [
     key: 'week',
     url: 'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},week,,,320,qfq',
     prop: 'qfqweek',
-    match: (time, record_time) =>
-      new Week(time).inSamePeriod(record_time)
+    // match: (time, record_time) =>
+      // new Week(time).inSamePeriod(record_time)
+    formatTime: dayString
   },
 
   {
@@ -82,16 +80,7 @@ const PRESETS = [
 
     // Transform request time -> response time format
     // Date -> 2017-09-01
-    formatTime (time) {
-      time = new Date(time)
-
-      const right = [
-        time.getMonth() + 1,
-        time.getDate()
-      ].map(padNumber).join('-')
-
-      return `${time.getFullYear()}-${right}`
-    }
+    formatTime: dayString
   }
 ]
 
@@ -127,6 +116,10 @@ const queue = new Queue({
           return reject(err)
         }
 
+        if (preset.replace) {
+          body = preset.replace(body)
+        }
+
         let json
         try {
           json = JSON.parse(body)
@@ -153,21 +146,24 @@ export default class Loader {
       return Promise.reject(new Error('span should be specified.'))
     }
 
-    const candlesticks = this._fetchAll(span)
+    const candlesticks = await this._fetchAll(span)
     const length = candlesticks.length
-    return map(keys, candlesticks, ({time, latest}, candlestick, index, i) => {
-      if (latest) {
-        return i === length - 1
-      }
+    return map(
+      keys,
+      candlesticks.map(datum => convertDatum(datum, span)),
+      ({time, latest}, candlestick, index, i) => {
+        if (latest) {
+          return i === length - 1
+        }
 
-      if (time) {
-        return time === + candlestick.time
-      }
-    }, null)
+        if (time) {
+          return time === + candlestick.time
+        }
+      }, null)
   }
 
   async get ({
-    // `Date`
+    // `timestamp`
     time,
     // `Enum.<DAY|...>`
     span,
@@ -225,15 +221,9 @@ export default class Loader {
     const preset = PRESET_MAP[span]
 
     // m5 queue has no params
-    const stock_time = preset.formatTime
-      ? preset.formatTime(time)
-      : time
+    const stock_time = preset.formatTime(time)
 
     const index = candlesticks.findIndex(([record_time]) => {
-      if (preset.match) {
-        return preset.match(stock_time, record_time)
-      }
-
       return stock_time === record_time
     })
 
@@ -270,7 +260,19 @@ function padNumber (number) {
 }
 
 
-function datetimeString (time) {
+function dayString (time) {
+  time = new Date(time)
+
+  const right = [
+    time.getMonth() + 1,
+    time.getDate()
+  ].map(padNumber).join('-')
+
+  return `${time.getFullYear()}-${right}`
+}
+
+
+function minuteString (time) {
   const right = [
     time.getMonth() + 1,
     time.getDate(),
@@ -278,7 +280,7 @@ function datetimeString (time) {
     time.getMinutes()
   ].map(padNumber).join('')
 
-  return `${time.getFullYear()}-${right}`
+  return `${time.getFullYear()}${right}`
 }
 
 
@@ -295,9 +297,7 @@ function convertDatum (datum, span) {
   const preset = PRESET_MAP[span]
 
   // Transform time string -> Date
-  const time = preset.time
-    ? preset.time(timestring)
-    : new Date(timestring)
+  const time = new Date(timestring)
 
   return {
     time,
