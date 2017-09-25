@@ -24,7 +24,8 @@ const PRESETS = [
     key: 'minute5',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m5,,10000',
     prop: 'm5',
-    formatTime: minuteString
+    formatTime: minuteString,
+    parseTime: parseMinute
   },
 
   {
@@ -32,7 +33,8 @@ const PRESETS = [
     key: 'minute15',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m15,,10000',
     prop: 'm15',
-    formatTime: minuteString
+    formatTime: minuteString,
+    parseTime: parseMinute
   },
 
   {
@@ -40,7 +42,8 @@ const PRESETS = [
     key: 'minute30',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m30,,10000',
     prop: 'm30',
-    formatTime: minuteString
+    formatTime: minuteString,
+    parseTime: parseMinute
   },
 
   {
@@ -48,7 +51,8 @@ const PRESETS = [
     key: 'minute60',
     url: 'http://ifzq.gtimg.cn/appstock/app/kline/mkline?param={code},m60,,10000',
     prop: 'm60',
-    formatTime: minuteString
+    formatTime: minuteString,
+    parseTime: parseMinute
   },
 
   {
@@ -148,6 +152,7 @@ export default class Loader {
 
     const candlesticks = await this._fetchAll(span)
     const length = candlesticks.length
+
     return map(
       keys,
       candlesticks.map(datum => convertDatum(datum, span)),
@@ -180,6 +185,8 @@ export default class Loader {
         return this._fetchLatest(span)
       }
     }
+
+    time = new Date(time)
 
     return this._fetch(time, span)
   }
@@ -284,20 +291,34 @@ function minuteString (time) {
 }
 
 
+function parseMinute (timestring) {
+  const [
+    Y, M, D,
+    h, m
+  ] = timestring.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/).slice(1)
+
+  return new Date(`${Y}-${M}-${D} ${h}:${m}`)
+}
+
+
 function convertDatum (datum, span) {
   const [
-    timestring,
+    ,
     open,
     close,
     high,
     low,
     volume
-  ] = datum
+  ] = datum.map(Number)
+
+  const timestring = datum[0]
 
   const preset = PRESET_MAP[span]
 
   // Transform time string -> Date
-  const time = new Date(timestring)
+  const time = preset.parseTime
+    ? preset.parseTime(timestring)
+    : new Date(timestring)
 
   return {
     time,
