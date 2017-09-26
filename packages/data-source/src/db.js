@@ -88,7 +88,7 @@ export default class Client {
 
   // Only save candlestick that is closed
   validate ({span, time}, value) {
-    return value && Time(time, span).timestamp() === + time
+    return value && time && Time(time, span).timestamp() === + time
   }
 
   _prepare_table (span) {
