@@ -1,6 +1,6 @@
 {
   "name": "data-source",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "description": "data-source for stock data",
   "main": "lib/index.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "url": "https://github.com/kaelzhang/soros/issues"
   },
   "devDependencies": {
-    "data-source-loader-qq": "^3.3.2"
+    "data-source-loader-qq": "^3.3.3"
   },
   "dependencies": {
     "knex": "^0.13.0",
