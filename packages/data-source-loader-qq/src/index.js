@@ -271,8 +271,6 @@ function padNumber (number) {
 
 
 function dayString (time) {
-  time = new Date(time)
-
   const right = [
     time.getMonth() + 1,
     time.getDate()
