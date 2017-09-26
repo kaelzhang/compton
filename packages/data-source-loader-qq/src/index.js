@@ -62,6 +62,7 @@ const PRESETS = [
     'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_monthqfq&param={code},month,,,320,qfq',
     prop: 'qfqmonth',
     formatTime: dayString,
+    parseTime: parseDay,
     replace: string => string.replace(/^kline_monthqfq=/, '')
   },
 
@@ -72,7 +73,8 @@ const PRESETS = [
     prop: 'qfqweek',
     // match: (time, record_time) =>
       // new Week(time).inSamePeriod(record_time)
-    formatTime: dayString
+    formatTime: dayString,
+    parseTime: parseDay
   },
 
   {
@@ -84,7 +86,8 @@ const PRESETS = [
 
     // Transform request time -> response time format
     // Date -> 2017-09-01
-    formatTime: dayString
+    formatTime: dayString,
+    parseTime: parseDay
   }
 ]
 
@@ -297,7 +300,13 @@ function parseMinute (timestring) {
     h, m
   ] = timestring.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/).slice(1)
 
-  return new Date(`${Y}-${M}-${D} ${h}:${m}`)
+  return new Date(Y, M - 1, D, h, m)
+}
+
+
+function parseDay (timestring) {
+  const [Y, M, D] = timestring.split('-')
+  return new Date(Y, M - 1, D)
 }
 
 
