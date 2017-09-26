@@ -26,11 +26,13 @@ class Filter {
     this._filter = filter
   }
 
-  async get ({time}) {
-    if (!time || await this._filter(time)) {
+  async get ({time, span}) {
+    if (!time || await this._filter({time, span})) {
+      // not found, then go down to next cache layer
       return
     }
 
+    // null value
     return null
   }
 }
@@ -63,6 +65,8 @@ export default class DataSource {
       db,
       _loader
     ], {
+      // undefined -> marked as not found
+      // null      -> found, but null value
       isNotFound: value => value === undefined
     })
   }
