@@ -188,6 +188,8 @@ export default class Client {
   }
 
   _mset (pairs) {
+    const {span} = pairs[0][0]
+
     return this._client(`${span}_${this._code}`)
     .insert(pairs.map(([, value]) => write_value(value)))
   }
