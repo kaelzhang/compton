@@ -71,7 +71,7 @@ export default class Client {
   }
 
   mset (...pairs) {
-    return this._ready(keys[0].span)
+    return this._ready(pairs[0][0].span)
     .then(() => this._mset(pairs))
   }
 
