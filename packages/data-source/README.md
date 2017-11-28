@@ -25,9 +25,9 @@ $ npm install data-source --save
 ## Usage
 
 ```js
-const DataSource = require('data-source')
+import DataSource from 'data-source'
 
-new DataSource({
+const dataSource = new DataSource({
   client: 'mysql',
   connection: {
     host: '127.0.0.1',
@@ -41,11 +41,10 @@ new DataSource({
   // Always trading, ideally
   isTrading: () => true
 })
-.get({
-  span: 'MONTH',
-  time: + new Date(2017, 4, 1)
-})
-.then(({
+
+const span = dataSource.span('MONTH')
+
+const {
   // `Number` open price
   open,
   // `Number` the highest price
@@ -58,28 +57,24 @@ new DataSource({
   volume,
   // `Date` time
   time
-}) => {
-  console.log(`sz300131 opened with ${open} at 2017-05-01`)
-})
+} = await span.get(new Date(2017, 4, 1))
+
+console.log(`sz300131 opened with ${open} at 2017-05-01`)
 ```
 
-## get({span, time})
+## span.get(time)
+## span.get(...times)
 
-Gets a single datum.
+Gets a single datum or an array of data
 
-- **time** `Date`
+- **time** `Date|Array<Date>`
 
-## get({span, between})
+## span.between([from, to])
 
-Gets data between a period.
+- **from** `Date` the closed left of the region
+- **to** `Date` the closed right of the region
 
-- **between** `[start: Date, end?: Date]`
-
-## get({span, latest})
-
-Gets the latest data
-
-- **limit** `true`
+Returns `Array<Date>` data between a period.
 
 ## License
 

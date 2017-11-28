@@ -47,7 +47,7 @@ new Loader('sz000002').get({
 
 Gets a candlestick data by time
 
-- **span** `Enum.<MONTH|WEEK|DAY|MINUTE60|MINUTE30|MINITE15|MINITE5>` time span
+- **span** `Enum<MONTH|WEEK|DAY|MINUTE60|MINUTE30|MINITE15|MINITE5>` time span
 - **time** `Date` the specified time.
 
 Returns `Candlestick`
@@ -61,13 +61,13 @@ Returns `Candlestick`
 - volume
 - time
 
-## get({span, latest})
+## get({span, between})
 
 Gets the latest datum.
 
 - **limit** `true`
 
-Returns `Array.<Candlestick>`
+Returns `Array<Candlestick>`
 
 ## License
 
