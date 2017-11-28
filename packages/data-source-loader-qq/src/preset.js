@@ -7,7 +7,7 @@ const padNumber = number => padStart('' + number, 2, '0')
 const firstDayOfYear = year => dayString(new Date(String(year)))
 const lastDayOfYear = year => {
   const nextYear = new Date(String(year + 1))
-  return dayString(+ nextYear - 1)
+  return dayString(new Date(+ nextYear - 1))
 }
 
 const dayString = time => {
@@ -45,37 +45,37 @@ const parseDay = timestring => {
 }
 
 export default {
-  MINUTE5: {
-    key: 'minute5',
-    url: code => `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m5,,10000`,
-    prop: 'm5',
-    formatTime: minuteString,
-    parseTime: parseMinute
-  },
-
-  MINUTE15: {
-    key: 'minute15',
-    url: code =>  `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m15,,10000`,
-    prop: 'm15',
-    formatTime: minuteString,
-    parseTime: parseMinute
-  },
-
-  MINUTE30: {
-    key: 'minute30',
-    url: code =>  `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m30,,10000`,
-    prop: 'm30',
-    formatTime: minuteString,
-    parseTime: parseMinute
-  },
-
-  MINUTE60: {
-    key: 'minute60',
-    url: code =>  `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,,10000`,
-    prop: 'm60',
-    formatTime: minuteString,
-    parseTime: parseMinute
-  },
+  // MINUTE5: {
+  //   key: 'minute5',
+  //   url: code => `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m5,,10000`,
+  //   prop: 'm5',
+  //   formatTime: minuteString,
+  //   parseTime: parseMinute
+  // },
+  //
+  // MINUTE15: {
+  //   key: 'minute15',
+  //   url: code =>  `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m15,,10000`,
+  //   prop: 'm15',
+  //   formatTime: minuteString,
+  //   parseTime: parseMinute
+  // },
+  //
+  // MINUTE30: {
+  //   key: 'minute30',
+  //   url: code =>  `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m30,,10000`,
+  //   prop: 'm30',
+  //   formatTime: minuteString,
+  //   parseTime: parseMinute
+  // },
+  //
+  // MINUTE60: {
+  //   key: 'minute60',
+  //   url: code =>  `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,,10000`,
+  //   prop: 'm60',
+  //   formatTime: minuteString,
+  //   parseTime: parseMinute
+  // },
 
   // DAY
   /////////////////////////////////////////////////////////////////////////////
@@ -108,23 +108,23 @@ export default {
     }
   },
 
-  WEEK: {
-    key: 'week',
-    url: code =>  `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},week,,,320,qfq`,
-    prop: 'qfqweek',
-    // match: (time, record_time) =>
-      // new Week(time).inSamePeriod(record_time)
-    formatTime: dayString,
-    parseTime: parseDay
-  },
-
-  MONTH: {
-    key: 'month',
-    url: code =>
-    `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_monthqfq&param=${code},month,,,320,qfq`,
-    prop: 'qfqmonth',
-    formatTime: dayString,
-    parseTime: parseDay,
-    replace: string => string.replace(/^kline_monthqfq=/, '')
-  }
+  // WEEK: {
+  //   key: 'week',
+  //   url: code =>  `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},week,,,320,qfq`,
+  //   prop: 'qfqweek',
+  //   // match: (time, record_time) =>
+  //     // new Week(time).inSamePeriod(record_time)
+  //   formatTime: dayString,
+  //   parseTime: parseDay
+  // },
+  //
+  // MONTH: {
+  //   key: 'month',
+  //   url: code =>
+  //   `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_monthqfq&param=${code},month,,,320,qfq`,
+  //   prop: 'qfqmonth',
+  //   formatTime: dayString,
+  //   parseTime: parseDay,
+  //   replace: string => string.replace(/^kline_monthqfq=/, '')
+  // }
 }

@@ -116,7 +116,7 @@ function run (index) {
   }) => {
 
     getTest(test, only)(`${span}[${index}]`, async t => {
-      const loader = new Loader(code)
+      const loader = new Loader(code, span)
 
       const {
         open,
@@ -124,10 +124,7 @@ function run (index) {
         high,
         low,
         volume
-      } = await loader.get({
-        time: + new Date(...date[index]),
-        span
-      })
+      } = await loader.get(new Date(...date[index]))
 
       t.deepEqual([
         open,
@@ -151,14 +148,9 @@ mget && CASES.forEach(({
 }) => {
 
   getTest(test, only)(`${span}:mget`, async t => {
-    const loader = new Loader(code)
+    const loader = new Loader(code, span)
 
-    const results = await loader.mget(...date.map(d => {
-      return {
-        time: + new Date(...d),
-        span
-      }
-    }))
+    const results = await loader.get(...date.map(d => new Date(...d)))
 
     const cleaned = results.map(({
       open,

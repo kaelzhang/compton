@@ -14,53 +14,35 @@ import PRESETS from './preset'
 import Loader from './loader'
 
 export default class {
-  constructor (code) {
-    this._code = code.toLowerCase()
-    this._loaders = Object.create(null)
-  }
-
-  _getLoader (span) {
-    return this._loaders[span] || (
-      this._loaders[span] = new Loader(code, PRESETS[span])
-    )
-  }
-
-  async mget (...keys) {
-    if (!keys.length) {
-      return []
-    }
-
-    const {span} = keys[0]
-    const loader = this._getLoader(span)
-
-    const data = await loader.
-  }
-
-  async get ({
-    // `timestamp`
-    time,
-    // `Enum.<DAY|...>`
-    span,
-    between
-  }) {
-
+  constructor (code, span) {
     if (!span) {
       return Promise.reject(new Error('span should be specified.'))
     }
 
-    if (!time && !between) {
-      return Promise.reject(
-        new Error('either time and between should be specified'))
+    this._code = code.toLowerCase()
+    this._loader = new Loader(code, PRESETS[span])
+  }
+
+  get (...times: Array<Date>) {
+    const length = times.length
+
+    if (length === 0) {
+      return []
     }
 
-    const loader = this._getLoader(span)
+    return this._mget(times)
+    .then(data => length === 1
+      ? data[0]
+      : data)
+  }
 
-    if (time) {
-      const data = await loader.get(span, [time, time])
-      return loader.find(time, data)
-    }
+  async _mget (times) {
+    return this._loader.get([times[0], times[times.length - 1]])
+    .then(data => this._loader.find(data, [time]))
+  }
 
-    const data = await loader.add(span, between)
-    return data.map(loader.formatDatum)
+  between ([from, to]) {
+    return this._loader.get([from, to])
+    .then(data => data.map(this._loader.formatDatum))
   }
 }

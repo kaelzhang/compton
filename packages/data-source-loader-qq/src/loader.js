@@ -41,6 +41,8 @@ export default class {
       prop
     } = this._preset
 
+    const code = this._code
+
     return fetch(url(code, [from, to]), code).then(body => {
       if (replace) {
         body = replace(body)
@@ -69,28 +71,16 @@ export default class {
 
   // @param {times} sorted times
   find (data, times) {
-    const sorted = times.map((time, i) => {
-      return {time, i}
-    })
-    .sort((a, b) => a.time > b.time)
-
     return map(
-      sorted,
+      times,
       data,
-      ({time, i}, datum) => {
+      (time, datum) => {
         const timeString = this._preset.formatTime(time)
         return datum[0] === timeString
       },
       null,
-      ({i}, datum) => {
-        return {
-          i,
-          datum: this.formatDatum(datum)
-        }
-      }
+      (time, datum) => this.formatDatum(datum)
     )
-    .sort((a, b) => a.i > b.i)
-    .map(({datum}) => datum)
   }
 
   formatDatum (datum) {
