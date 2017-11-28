@@ -22,7 +22,7 @@
     "data-source"
   ],
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=8.0.0"
   },
   "ava": {
     "require": "babel-register",

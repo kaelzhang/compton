@@ -11,38 +11,150 @@
 // http://stockjs.finance.qq.com/sstock/list/suspension/js/sz000829.js?0.9345282303402396
 
 import PRESETS from './preset'
-import Loader from './loader'
+import Queue from 'pending-queue'
+import request from 'request'
+import node_url from 'url'
+import access from 'object-access'
+
+const fetch = (url, code) => new Promise((resolve, reject) => {
+  request({
+    url,
+    headers: {
+      'Referrer': `http://gu.qq.com/${code}?pgv_ref=fi_smartbox&_ver=2.0`,
+      'Host': node_url.parse(url).hostname,
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'
+    }
+  }, (err, response, body) => {
+    if (err) {
+      return reject(err)
+    }
+
+    resolve(body)
+  })
+})
 
 export default class {
   constructor (code, span) {
     if (!span) {
-      return Promise.reject(new Error('span should be specified.'))
+      throw new Error('span must be specified')
     }
 
-    this._code = code.toLowerCase()
-    this._loader = new Loader(code, PRESETS[span])
+    const preset = PRESETS[span]
+    if (!preset) {
+      throw new Error(`invalid span "${span}"`)
+    }
+
+    this._code = code
+    this._preset = preset
+
+    const load = this._load.bind(this)
+    this._queue = new Queue({load})
   }
 
-  get (...times: Array<Date>) {
+  // Returns raw
+  _load (from, to) {
+    const {
+      url,
+      replace,
+      prop
+    } = this._preset
+
+    const code = this._code
+    const requestUrl = url(code, [from, to]) + '&r=' + Math.random()
+
+    return fetch(requestUrl, code).then(body => {
+      if (replace) {
+        body = replace(body)
+      }
+
+      try {
+        return access(JSON.parse(body), ['data', this._code, prop], [])
+      } catch (e) {
+        return Promise.reject(new Error('fails to parse json'))
+      }
+    })
+  }
+
+  async between ([from, to]) {
+    const {
+      map
+    } = this._preset
+
+    const tasks = map([from, to])
+    .map(([from, to]) => this._queue.add(from, to))
+
+    const data = await Promise.all(tasks)
+
+    return data.reduce((prev, current) => {
+      current.forEach(datum => {
+        prev.push(this._formatDatum(datum))
+      })
+
+      return prev
+    }, [])
+  }
+
+  async _getOne (time) {
+    const {
+      map,
+      formatTime
+    } = this._preset
+
+    const formated = formatTime(time)
+
+    const [from, to] = map([time, time])[0]
+
+    const data = await this._queue.add(from, to)
+
+    const index = data.findIndex(datum => {
+      return datum[0] === formated
+    })
+
+    if (~index) {
+      return this._formatDatum(data[index])
+    }
+
+    return null
+  }
+
+  async get (...times) {
     const length = times.length
-
     if (length === 0) {
-      return []
+      return null
     }
 
-    return this._mget(times)
-    .then(data => length === 1
-      ? data[0]
-      : data)
+    return length === 1
+      ? this._getOne(times[0])
+      : Promise.all(times.map(time => this._getOne(time)))
   }
 
-  async _mget (times) {
-    return this._loader.get([times[0], times[times.length - 1]])
-    .then(data => this._loader.find(data, [time]))
-  }
+  _formatDatum (datum) {
+    const [
+      ,
+      open,
+      close,
+      high,
+      low,
+      volume
+    ] = datum.map(Number)
 
-  between ([from, to]) {
-    return this._loader.get([from, to])
-    .then(data => data.map(this._loader.formatDatum))
+    const timestring = datum[0]
+    const {
+      parseTime
+    } = this._preset
+
+    // Transform time string -> Date
+    const time = parseTime
+      ? parseTime(timestring)
+      : new Date(timestring)
+
+    return {
+      time,
+      open,
+      high,
+      low,
+      close,
+      volume
+    }
   }
 }

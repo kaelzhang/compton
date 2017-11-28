@@ -3,6 +3,7 @@
   "version": "3.3.3",
   "description": "data-source loader for gu.qq.com",
   "main": "lib/index.js",
+  "module": "src/index.js",
   "scripts": {
     "build": "BABEL_ENV=babel ../../node_modules/.bin/babel src -d lib",
     "test": "BABEL_ENV=ava ../../node_modules/.bin/nyc ../../node_modules/.bin/ava --verbose --timeout=10s",
@@ -43,7 +44,6 @@
     ]
   },
   "dependencies": {
-    "array-map-sorted": "^1.3.0",
     "babel-runtime": "^6.26.0",
     "lodash.padstart": "^4.6.1",
     "lodash.range": "^3.2.0",

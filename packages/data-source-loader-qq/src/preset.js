@@ -4,12 +4,6 @@ import padStart from 'lodash.padstart'
 const date = d => new Date(d)
 const padNumber = number => padStart('' + number, 2, '0')
 
-const firstDayOfYear = year => dayString(new Date(String(year)))
-const lastDayOfYear = year => {
-  const nextYear = new Date(String(year + 1))
-  return dayString(new Date(+ nextYear - 1))
-}
-
 const dayString = time => {
   const right = [
     time.getMonth() + 1,
@@ -94,7 +88,8 @@ export default {
     parseTime: parseDay,
     map ([from, to]): Array<string> {
       [from, to] = [from, to].map(date)
-      const fromYear = from.getYear()
+
+      const fromYear = from.getFullYear()
       let toYear = fromYear
 
       while (new Date(String(toYear + 1)) <= to) {
@@ -102,8 +97,8 @@ export default {
       }
 
       return range(fromYear, toYear + 1).map(year => [
-        firstDayOfYear(year),
-        lastDayOfYear(year)
+        `${year}-01-01`,
+        `${year}-12-31`
       ])
     }
   },
