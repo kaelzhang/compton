@@ -27,10 +27,7 @@ $ npm install data-source-loader-qq --save
 ```js
 const Loader = require('data-source-loader-qq')
 
-new Loader('sz000002').get({
-  time: + new Date,
-  span: 'DAY'
-})
+new Loader('sz000002', 'DAY').get(new Date)
 .then(({
   open,
   close,
@@ -43,11 +40,14 @@ new Loader('sz000002').get({
 })
 ```
 
-## get({span, time})
+## new Loader(code, span)
+
+- **span** `Enum<MONTH|WEEK|DAY|MINUTE60|MINUTE30|MINITE15|MINITE5>` time span
+
+## get(time)
 
 Gets a candlestick data by time
 
-- **span** `Enum<MONTH|WEEK|DAY|MINUTE60|MINUTE30|MINITE15|MINITE5>` time span
 - **time** `Date` the specified time.
 
 Returns `Candlestick`
@@ -61,11 +61,15 @@ Returns `Candlestick`
 - volume
 - time
 
-## get({span, between})
+## get(...times)
+
+- **times** `Array<Date>`
 
 Gets the latest datum.
 
-- **limit** `true`
+Returns `Array<Candlestick>`
+
+## between([from: Date, to: Date])
 
 Returns `Array<Candlestick>`
 

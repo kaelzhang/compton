@@ -10,7 +10,7 @@
 // suspension
 // http://stockjs.finance.qq.com/sstock/list/suspension/js/sz000829.js?0.9345282303402396
 
-import PRESETS from './preset'
+import * as PRESETS from './preset'
 import Queue from 'pending-queue'
 import request from 'request'
 import node_url from 'url'
