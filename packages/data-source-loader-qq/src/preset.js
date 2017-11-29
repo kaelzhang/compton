@@ -1,42 +1,17 @@
 import range from 'lodash.range'
 import padStart from 'lodash.padstart'
+import moment from 'moment'
 
 const date = d => new Date(d)
 const padNumber = number => padStart('' + number, 2, '0')
 
-const dayString = time => {
-  const right = [
-    time.getMonth() + 1,
-    time.getDate()
-  ].map(padNumber).join('-')
+const dayString = time => moment(time).format('YYYY-MM-DD')
+const minuteString = time => moment(time).format('YYYYMMDDHHmm') + '00'
+const parseMinute = timestring => moment(timestring, 'YYYYMMDDHHmm').toDate()
+const parseDay = timestring => moment(timestring, 'YYYY-MM-DD').toDate()
 
-  return `${time.getFullYear()}-${right}`
-}
-
-const minuteString = time => {
-  const right = [
-    time.getMonth() + 1,
-    time.getDate(),
-    time.getHours(),
-    time.getMinutes()
-  ].map(padNumber).join('')
-
-  return `${time.getFullYear()}${right}`
-}
-
-const parseMinute = timestring => {
-  const [
-    Y, M, D,
-    h, m
-  ] = timestring.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/).slice(1)
-
-  return new Date(Y, M - 1, D, h, m)
-}
-
-const parseDay = timestring => {
-  const [Y, M, D] = timestring.split('-')
-  return new Date(Y, M - 1, D)
-}
+const sub4Months = (time: Moment) =>
+  time.subtract(4, 'M').date(0).hours(0).minutes(0)
 
 export default {
   // MINUTE5: {
@@ -64,13 +39,26 @@ export default {
   // },
   //
   MINUTE60: {
-    url: (code, [from = '', to = '']) =>
-      `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,,`,
+    // Trading hours in 4 months: 4 * (31 / 7 * 5) * 4 ~~= (<) 360
+    url: (code, [, before = '']) =>
+      `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,${before},360`,
     prop: 'm60',
     formatTime: minuteString,
     parseTime: parseMinute,
-    map ([from, to]) {
+    // Into
+    map ([from: Date, to: Date]) {
+      to = to || new Date
 
+      const before = moment(to).add(1, 'M').date(0).hours(0)
+      let b = before
+      const ranges = []
+
+      do {
+        ranges.unshift([, minuteString(b)])
+        b = sub4Months(b)
+      } while (b > Date)
+
+      return ranges
     }
   },
 
@@ -79,8 +67,7 @@ export default {
   DAY: {
     // [from, to] is a left-close and right-close region
     url: (code, [from = '', to = ''], limit = 320) =>
-      `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},day,${from},${to},${limit},qfq`
-    },
+      `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},day,${from},${to},${limit},qfq`,
     // The key of the response data
     prop: 'qfqday',
 
@@ -89,9 +76,8 @@ export default {
     formatTime: dayString,
     parseTime: parseDay,
     // Splits time ranges into each year
-    map ([from, to]): Array<string> {
-      [from, to] = [from, to].map(date)
-
+    map ([from: Date, to: Date]): Array<string> {
+      to = to || new Date
       const fromYear = from.getFullYear()
       let toYear = fromYear
 

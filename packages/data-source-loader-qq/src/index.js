@@ -15,6 +15,7 @@ import Queue from 'pending-queue'
 import request from 'request'
 import node_url from 'url'
 import access from 'object-access'
+import concat from 'lazy-concat'
 
 const fetch = (url, code) => new Promise((resolve, reject) => {
   request({
@@ -32,6 +33,10 @@ const fetch = (url, code) => new Promise((resolve, reject) => {
     resolve(body)
   })
 })
+
+const equal = ([timeA], [timeB]) => timeA === timeB
+// Join two datum,
+const reduce = concat.factory({equal})
 
 export default class {
   constructor (code, span) {
@@ -75,7 +80,7 @@ export default class {
     })
   }
 
-  async between ([from, to]) {
+  async between ([from: Date, to: Date]) {
     const {
       map
     } = this._preset
@@ -84,14 +89,7 @@ export default class {
     .map(([from, to]) => this._queue.add(from, to))
 
     const data = await Promise.all(tasks)
-
-    return data.reduce((prev, current) => {
-      current.forEach(datum => {
-        prev.push(this._formatDatum(datum))
-      })
-
-      return prev
-    }, [])
+    return reduce(...data).map(datum => this._formatDatum(datum))
   }
 
   async _getOne (time) {
@@ -101,9 +99,7 @@ export default class {
     } = this._preset
 
     const formated = formatTime(time)
-
     const [from, to] = map([time, time])[0]
-
     const data = await this._queue.add(from, to)
 
     const index = data.findIndex(datum => {
@@ -117,7 +113,7 @@ export default class {
     return null
   }
 
-  async get (...times) {
+  async get (...times: Array<Date>) {
     const length = times.length
     if (length === 0) {
       return null
