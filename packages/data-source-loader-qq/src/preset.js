@@ -63,21 +63,23 @@ export default {
   //   parseTime: parseMinute
   // },
   //
-  // MINUTE60: {
-  //   key: 'minute60',
-  //   url: code =>  `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,,10000`,
-  //   prop: 'm60',
-  //   formatTime: minuteString,
-  //   parseTime: parseMinute
-  // },
+  MINUTE60: {
+    url: (code, [from = '', to = '']) =>
+      `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,,`,
+    prop: 'm60',
+    formatTime: minuteString,
+    parseTime: parseMinute,
+    map ([from, to]) {
+
+    }
+  },
 
   // DAY
   /////////////////////////////////////////////////////////////////////////////
   DAY: {
-    key: 'day',
     // [from, to] is a left-close and right-close region
-    url (code, [from = '', to = '']) {
-      return `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},day,${from},${to},320,qfq`
+    url: (code, [from = '', to = ''], limit = 320) =>
+      `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},day,${from},${to},${limit},qfq`
     },
     // The key of the response data
     prop: 'qfqday',
@@ -86,6 +88,7 @@ export default {
     // Date -> 2017-09-01
     formatTime: dayString,
     parseTime: parseDay,
+    // Splits time ranges into each year
     map ([from, to]): Array<string> {
       [from, to] = [from, to].map(date)
 
