@@ -1,6 +1,6 @@
 {
   "name": "data-source-loader-qq",
-  "version": "3.3.3",
+  "version": "4.0.0",
   "description": "data-source loader for gu.qq.com",
   "main": "lib/index.js",
   "module": "src/index.js",
