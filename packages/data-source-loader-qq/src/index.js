@@ -17,14 +17,12 @@ import node_url from 'url'
 import access from 'object-access'
 import concat from 'lazy-concat'
 
-const fetch = (url, code) => new Promise((resolve, reject) => {
+const fetch = (url, {
+  code,
+  span
+}) => new Promise((resolve, reject) => {
   request({
-    url,
-    headers: {
-      'Referrer': `http://gu.qq.com/${code}?pgv_ref=fi_smartbox&_ver=2.0`,
-      'Host': node_url.parse(url).hostname,
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'
-    }
+    url
   }, (err, response, body) => {
     if (err) {
       return reject(err)
@@ -39,7 +37,7 @@ const equal = ([timeA], [timeB]) => timeA === timeB
 const reduce = concat.factory({equal})
 
 export default class {
-  constructor (code, span) {
+  constructor (code, span, request = fetch) {
     if (!span) {
       throw new Error('span must be specified')
     }
@@ -50,14 +48,16 @@ export default class {
     }
 
     this._code = code
+    this._span = span
     this._preset = preset
+    this._request = request
 
     const load = this._load.bind(this)
     this._queue = new Queue({load})
   }
 
   // Returns raw
-  _load (from, to, limit) {
+  async _load (from, to, limit) {
     const {
       url,
       replace,
@@ -67,17 +67,20 @@ export default class {
     const code = this._code
     const requestUrl = url(code, [from, to], limit) + '&r=' + Math.random()
 
-    return fetch(requestUrl, code).then(body => {
-      if (replace) {
-        body = replace(body)
-      }
-
-      try {
-        return access(JSON.parse(body), ['data', this._code, prop], [])
-      } catch (e) {
-        return Promise.reject(new Error('fails to parse json'))
-      }
+    let body = await this._request(requestUrl, {
+      code,
+      span: this._span
     })
+
+    if (replace) {
+      body = replace(body)
+    }
+
+    try {
+      return access(JSON.parse(body), ['data', code, prop], [])
+    } catch (e) {
+      return Promise.reject(new Error('fails to parse json'))
+    }
   }
 
   async between ([from: Date, to: Date]) {
