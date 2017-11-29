@@ -40,9 +40,12 @@ new Loader('sz000002', 'DAY').get(new Date)
 })
 ```
 
-## new Loader(code, span)
+## new Loader(code, span, {request, loaded})
 
+- **code** `string` stock code
 - **span** `Enum<MONTH|WEEK|DAY|MINUTE60|MINUTE30|MINITE15|MINITE5>` time span
+- **request** `function(url, {code, span})=`
+- **loaded** `function(data)=NOOP` method to execute when the data loaded. 
 
 ## get(time)
 

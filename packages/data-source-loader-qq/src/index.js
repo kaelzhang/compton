@@ -22,7 +22,12 @@ const fetch = (url, {
   span
 }) => new Promise((resolve, reject) => {
   request({
-    url
+    url,
+    headers: {
+      'Referrer': `http://gu.qq.com/${code}?pgv_ref=fi_smartbox&_ver=2.0`,
+      'Host': node_url.parse(url).hostname,
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'
+    }
   }, (err, response, body) => {
     if (err) {
       return reject(err)
@@ -35,9 +40,13 @@ const fetch = (url, {
 const equal = ([timeA], [timeB]) => timeA === timeB
 // Join two datum,
 const reduce = concat.factory({equal})
+const NOOP = () => {}
 
 export default class {
-  constructor (code, span, request = fetch) {
+  constructor (code, span, {
+    request = fetch,
+    loaded = NOOP
+  } = {}) {
     if (!span) {
       throw new Error('span must be specified')
     }
@@ -51,6 +60,7 @@ export default class {
     this._span = span
     this._preset = preset
     this._request = request
+    this._loaded = loaded
 
     const load = this._load.bind(this)
     this._queue = new Queue({load})
@@ -76,23 +86,56 @@ export default class {
       body = replace(body)
     }
 
+    let data
+
     try {
-      return access(JSON.parse(body), ['data', code, prop], [])
+      data = access(JSON.parse(body), ['data', code, prop], [])
     } catch (e) {
-      return Promise.reject(new Error('fails to parse json'))
+      return Promise.reject(new Error(`fails to parse json: ${e.stack}`))
     }
+
+    await this._loaded(data)
   }
 
   async between ([from: Date, to: Date]) {
     const {
-      map
+      map,
+      parseTime
     } = this._preset
 
     const tasks = map([from, to])
     .map(([from, to]) => this._queue.add(from, to))
 
-    const data = await Promise.all(tasks)
-    return reduce(...data).map(datum => this._formatDatum(datum))
+    const data = reduce(await Promise.all(tasks))
+    const length = data.length
+    let i = -1
+    let firstMet = -1
+    let secondMet = length
+
+    while (++ i < length) {
+      const date = parseTime(data[i])
+
+      if (firstMet === -1) {
+        if (date >= from) {
+          firstMet = i
+        }
+
+        continue
+      }
+
+      if (date > to) {
+        secondMet = i
+        continue
+      }
+
+      if (date == to) {
+        secondMet = i + 1
+      }
+    }
+
+    return data
+    .slice(firstMet, secondMet)
+    .map(datum => this._formatDatum(datum))
   }
 
   async _getOne (time) {
