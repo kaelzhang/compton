@@ -169,3 +169,10 @@ mget && CASES.forEach(({
     t.deepEqual(cleaned, expect.map(datum => datum.map(Number)))
   })
 })
+
+
+test('latest', async t => {
+  const loader = new Loader(code, 'DAY')
+  const results = await loader.latest(3)
+  t.is(results.length, 3)
+})

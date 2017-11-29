@@ -37,8 +37,8 @@ const parseDay = timestring => moment(timestring, 'YYYY-MM-DD').toDate()
 // Period: 4 months
 export const MINUTE60 = {
   // Trading hours in 4 months: 4 * (31 / 7 * 5) * 4 ~~= (<) 360
-  url (code, [, before = '']) {
-    return `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,${before},360`
+  url (code, [, before = ''], limit = 360) {
+    return `http://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m60,${before},${limit}`
   },
   prop: 'm60',
   formatTime: minuteString,
@@ -104,7 +104,7 @@ export const DAY = {
 // Period: 6 years, 6 * 54 = 324 < 340
 export const WEEK = {
   key: 'week',
-  url: (code, [from = '', before = '']) =>  `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},week,${from},${before},340,qfq`,
+  url: (code, [from = '', before = ''], limit = 340) =>  `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},week,${from},${before},${limit},qfq`,
   prop: 'qfqweek',
   formatTime: dayString,
   parseTime: parseDay,

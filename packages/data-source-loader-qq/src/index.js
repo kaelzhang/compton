@@ -57,7 +57,7 @@ export default class {
   }
 
   // Returns raw
-  _load (from, to) {
+  _load (from, to, limit) {
     const {
       url,
       replace,
@@ -65,7 +65,7 @@ export default class {
     } = this._preset
 
     const code = this._code
-    const requestUrl = url(code, [from, to]) + '&r=' + Math.random()
+    const requestUrl = url(code, [from, to], limit) + '&r=' + Math.random()
 
     return fetch(requestUrl, code).then(body => {
       if (replace) {
@@ -111,6 +111,11 @@ export default class {
     }
 
     return null
+  }
+
+  async latest (limit) {
+    const data = await this._queue.add('', '', limit - 1)
+    return data.map(datum => this._formatDatum(datum))
   }
 
   async get (...times: Array<Date>) {
