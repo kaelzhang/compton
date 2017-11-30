@@ -68,7 +68,7 @@ export default class {
   }
 
   // Returns raw
-  async _load (from, to, limit) {
+  async _load (from: string, to: string, limit) {
     const {
       url,
       replace,
@@ -113,7 +113,9 @@ export default class {
     const tasks = map([from, to])
     .map(([from, to]) => this._queue.add(from, to))
 
-    const data = reduce(await Promise.all(tasks))
+    const rawData = await Promise.all(tasks)
+    const data = reduce(...rawData)
+
     const length = data.length
     let i = -1
     let firstMet = -1
@@ -132,11 +134,14 @@ export default class {
 
       if (date > to) {
         secondMet = i
-        continue
+        // The next item of the second met found, break
+        break
       }
 
       if (date == to) {
+        // Second met found, break
         secondMet = i + 1
+        break
       }
     }
 
@@ -167,7 +172,7 @@ export default class {
   }
 
   async latest (limit) {
-    const data = await this._queue.add('', '', limit - 1)
+    const data = await this._queue.add('', '', limit)
     return data.map(datum => this._formatDatum(datum))
   }
 

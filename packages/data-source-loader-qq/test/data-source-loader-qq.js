@@ -170,9 +170,23 @@ mget && CASES.forEach(({
   })
 })
 
-
 test('latest', async t => {
   const loader = new Loader(code, 'DAY')
   const results = await loader.latest(3)
   t.is(results.length, 3)
+})
+
+test('between', async t => {
+  const loader = new Loader(code, 'DAY')
+  const from = new Date(2017, 6, 5)
+  const to = new Date(2017, 6, 6)
+  const result = await loader.between([from, to])
+
+  t.deepEqual(
+    result,
+    [
+      ["2017-07-05","4.540","4.550","4.600","4.520","73361.000"],
+      ["2017-07-06","4.520","4.550","4.570","4.520","83483.000"]
+    ].map(datum => loader._formatDatum(datum))
+  )
 })
