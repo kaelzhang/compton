@@ -28,7 +28,6 @@ $ npm install data-source --save
 import DataSource from 'data-source'
 
 const dataSource = new DataSource({
-  client: 'mysql',
   connection: {
     host: '127.0.0.1',
     user: 'root',
@@ -63,18 +62,29 @@ console.log(`sz300131 opened with ${open} at 2017-05-01`)
 ```
 
 ## span.get(time)
-## span.get(...times)
 
-Gets a single datum or an array of data
+Gets a single datum
 
 - **time** `Date|Array<Date>`
+
+Returns `Candlestick|null`
+
+## span.get(...times)
+
+Returns `Array<Candlestick>`
 
 ## span.between([from, to])
 
 - **from** `Date` the closed left of the region
 - **to** `Date` the closed right of the region
 
-Returns `Array<Date>` data between a period.
+Returns `Array<Candlestick>` data between a period.
+
+## span.latest(limit)
+
+- **limit** `Number` limit the number of results.
+
+Returns `Array<Candlestick>`
 
 ## License
 

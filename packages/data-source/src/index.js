@@ -1,13 +1,11 @@
 import DB from './db'
-import Time from './time'
 import _LRU from 'lru-cache'
 import LCache from 'layered-cache'
 
-
 class LRU {
-  constructor () {
+  constructor (max) {
     this._cache = new _LRU({
-      max: 10000
+      max
     })
   }
 
@@ -38,9 +36,25 @@ class Filter {
 }
 
 export default class DataSource {
-  constructor ({
+  constructor (options) {
+    this._options = options
+    this._spans = Object.create(null)
+  }
+
+  span (span) {
+    if (span in this._spans) {
+      return this._spans[span]
+    }
+
+    return this._spans[span] = new DataSourceSpan(code, this._options)
+  }
+}
+
+const client = 'mysql'
+class DataSourceSpan {
+  constructor (span, {
     // @type `enum.<mysql>` only support `mysql` for now
-    client,
+    // client,
     // @type `Object` The knex connection
     connection,
     // @type `String` The stock code, example: `sz000401`
@@ -48,84 +62,37 @@ export default class DataSource {
     // @type `Class`
     loader,
     // @type `function(value): Boolean` whether a stock market is trading
-    isTrading
+    isTrading,
+    request,
+    maxCacheItems = 1000
   }) {
 
-    const _loader = new loader(code)
-    const db = new DB({
+    this._db = new DB({
       client,
       connection,
-      code
-    })
-    const lru = new LRU
-
-    this._cache = new LCache([
-      new Filter(isTrading),
-      lru,
-      db,
-      _loader
-    ], {
-      // undefined -> marked as not found
-      // null      -> found, but null value
-      isNotFound: value => value === undefined
-    })
-  }
-
-  async get ({
-    // @type `String.<MONTH|DAY|...>`
-    span,
-    // @type `Timestamp`
-    time,
-    // @type `Array.<[start: Date, end?: Date]>`
-    between,
-    // @type `Boolean` get the latest candlestick
-    latest
-  }) {
-
-    if (time) {
-      return this._get({span, time})
-    }
-
-    if (latest) {
-      return this._get({span, latest})
-    }
-
-    const periods = await this._data_period(span, between)
-    const tasks = periods.map(time => {
-      return {span, time}
+      code,
+      span
     })
 
-    // If there is no end, then also get the lastest
-    if (!between[1]) {
-      tasks.push({span, latest: true})
-    }
+    this._lru = new LRU(maxCacheItems)
 
-    return this._cache.mget(...tasks)
+    this._synchronized = new LCache()
+    this._loader = new loader(code, span, request)
   }
 
-  _data_period (span, between) {
-    if (!between[1]) {
-      between[1] = new Date
-    }
+  sync ([from, to]) {
 
-    const periods = []
-    const [
-      start,
-      end
-    ] = between.map(time => Time(time, span))
-
-    const end_timestamp = end.timestamp()
-    let timestamp
-    let offset = 0
-
-    while ((timestamp = start.offset(offset ++)) <= end_timestamp) {
-      periods.push(timestamp)
-    }
-
-    return periods
   }
 
-  _get (what) {
-    return this._cache.get(what)
+  get (...times) {
+
+  }
+
+  between ([from, to]) {
+
+  }
+
+  latest (limit) {
+
   }
 }

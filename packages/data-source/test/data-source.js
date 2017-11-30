@@ -11,9 +11,10 @@ import {
   Candlesticks
 } from 'candlesticks'
 
+import request from 'request'
+
 
 test('nothing...', async t => {
-
   const connection = knex({
     client: 'mysql',
     connection: {
@@ -48,18 +49,4 @@ test('nothing...', async t => {
   })
 
   console.log('between result', betweenResult)
-
-  // const latestResult = await source.get({
-  //   span: 'DAY',
-  //   latest: true
-  // })
-  //
-  // console.log('latest result', latestResult)
-  //
-  // const fromResult = await source.get({
-  //   span: 'DAY',
-  //   between: [ + new Date(2017, 8, 15) ]
-  // })
-  //
-  // console.log('from result', fromResult)
 })

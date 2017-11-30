@@ -1,5 +1,6 @@
 import knex from 'knex'
 import queue from 'ready-queue'
+import map from 'array-map-sorted'
 
 import {
   candlestick
@@ -16,10 +17,12 @@ export default class Client {
   constructor ({
     client,
     connection,
-    code
+    code,
+    span
   }) {
 
     this._code = code
+    this._span = span
 
     this._client = isKnex(connection)
       ? connection
@@ -28,72 +31,120 @@ export default class Client {
         connection
       })
 
-    this._queue = queue({
-      load: span => this._prepare_table(span)
+    this._tableName = `${this._span}_${this._code}`
+    this._createDataTable = queue({
+      load: span => this._prepareTable(span)
+    })
+
+    this._tableNameUpdated = 'updated_to'
+    this._createLatestUpdatedTable = queue({
+      load: () => this._prepareStatusTable()
     })
 
     this._isReady = {}
   }
 
+  // Left-closed and right-closed
+  async between ([from, to]) {
+    const updated = await this.updated(to)
+    if (!updated) {
+      return []
+    }
+
+    const rows = await this._client
+    .select()
+    .from(this._tableName)
+    .whereBetween('time', [from, to])
+
+    return Promise.all(rows.map(candlestick))
+  }
+
+  async updated (time) {
+    const rows = await this._client
+    .select('updated_to')
+    .from(this._tableNameUpdated)
+    .where({
+      code: this._code
+      span: this._span
+    })
+
+    if (!rows.length) {
+      return false
+    }
+
+    const lastUpdated = new Date(rows[0])
+    return lastUpdated >= time
+  }
+
+  // Only save candlestick that is closed
+  // TODO: BUG:
+  // should detect if the stock market is closed.
+  validate (time, value) {
+    return value && time && Time(time, this._span).timestamp() === + time
+  }
+
   // Get the candlestick from db
   // @returns `Candlestick`
-  get ({
-    span,
-    time
-  }) {
-
-    return this._ready(span)
-    .then(
-      () => this._get({
-        span,
-        time
-      })
-    )
+  get (time) {
+    return this._ready()
+    .then(() => this._get(time))
   }
 
-  mget (...keys) {
-    return this._ready(keys[0].span)
-    .then(() => this._mget(keys))
+  mget (...times) {
+    return this._ready()
+    .then(() => this._mget(times))
   }
 
-  set ({
-    span,
-    time
-  }, value) {
-
-    return this._ready(span)
-    .then(
-      () => this._set({
-        span,
-        time
-      }, value)
-    )
+  set (time, value) {
+    return this._ready()
+    .then(() => this._set(time, value))
   }
 
   mset (...pairs) {
-    return this._ready(pairs[0][0].span)
+    return this._ready()
     .then(() => this._mset(pairs))
   }
 
-  _ready (span) {
+  _ready () {
+    const span = this._span
+
     if (this._isReady[span]) {
       return Promise.resolve()
     }
 
-    return this._queue.add(span)
+    return this._createDataTable.add()
     .then(() => {
       this._isReady[span] = true
     })
   }
 
-  // Only save candlestick that is closed
-  validate ({span, time}, value) {
-    return value && time && Time(time, span).timestamp() === + time
+  _prepareStatusTable () {
+    const schema = this._client.schema
+    const name = this._tableNameUpdated
+
+    return schema.hasTable(name).then(exists => {
+      if (exists) {
+        return
+      }
+
+      return schema
+      .createTableIfNotExists(name, table => {
+        table.increments('id').primary()
+        table.string('code', 10)
+        table.enu('span', [
+          'DAY',
+          'WEEK',
+          'MINUTE60'
+        ])
+        table.dateTime('updated_to')
+        table.dateTime('time')
+      })
+    })
   }
 
-  _prepare_table (span) {
+  _prepareTable () {
     const schema = this._client.schema
-    const name = `${span}_${this._code}`
+    const name = this._tableName
 
     return schema.hasTable(name).then(exists => {
       if (exists) {
@@ -102,7 +153,7 @@ export default class Client {
 
       // If no
       Promise.all([
-        this._create_table(name),
+        this._createTable(name),
         // create or update other records
       ])
     })
@@ -118,7 +169,7 @@ export default class Client {
   //   time DATETIME NOT NULL,
   //   PRIMARY KEY (id)
   // )
-  _create_table (name) {
+  _createTable (name) {
     return this._client
     .schema
     .createTableIfNotExists(name, table => {
@@ -132,65 +183,45 @@ export default class Client {
     })
   }
 
-  _get ({
-    span,
-    time
-  }) {
-
+  _get (time) {
     return this._client
     .select()
-    .from(`${span}_${this._code}`)
+    .from(this._tableName)
     .where('time', new Date(time))
     .then(rows => {
       const row = rows[0]
-
       if (row) {
         return candlestick(row)
       }
     })
   }
 
-  _mget (keys) {
-    const {span} = keys[0]
-
+  _mget (times) {
     let matchedIndex = -1
 
     return this._client
     .select()
-    .from(`${span}_${this._code}`)
-    .whereIn('time', keys.map(({time}) => new Date(time)))
+    .from(this._tableName)
+    .whereIn('time', times)
     .then(rows => {
-      const results = keys.map(({time}) => {
-        let i = matchedIndex + 1
-        let row
-        const length = rows.length
+      const tasks = map(
+        times,
+        rows,
+        (time, row) => + row.time === + time,
+        (time, row) => candlestick(row)
+      )
 
-        for (; i < length; i ++) {
-          row = rows[i]
-          if (+ row.time === time) {
-            matchedIndex = i
-            return candlestick(row)
-          }
-        }
-      })
-
-      return Promise.all(results)
+      return Promise.all(tasks)
     })
   }
 
-  _set ({
-    span,
-    time
-  }, value) {
-
-    return this._client(`${span}_${this._code}`)
+  _set (time, value) {
+    return this._client(this._tableName)
     .insert(write_value(value))
   }
 
   _mset (pairs) {
-    const {span} = pairs[0][0]
-
-    return this._client(`${span}_${this._code}`)
+    return this._client(this._tableName)
     .insert(pairs.map(([, value]) => write_value(value)))
   }
 }

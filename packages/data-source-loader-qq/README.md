@@ -45,7 +45,7 @@ new Loader('sz000002', 'DAY').get(new Date)
 - **code** `string` stock code
 - **span** `Enum<MONTH|WEEK|DAY|MINUTE60|MINUTE30|MINITE15|MINITE5>` time span
 - **request** `function(url, {code, span})=`
-- **loaded** `function(data)=NOOP` method to execute when the data loaded. 
+- **loaded** `function(data)=NOOP` method to execute when the data loaded.
 
 ## get(time)
 
@@ -73,6 +73,9 @@ Gets the latest datum.
 Returns `Array<Candlestick>`
 
 ## between([from: Date, to: Date])
+
+- **from** `Date` left-closed border of a region
+- **to** `Date` right-closed border of a region
 
 Returns `Array<Candlestick>`
 

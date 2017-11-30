@@ -45,6 +45,7 @@ const NOOP = () => {}
 export default class {
   constructor (code, span, {
     request = fetch,
+    // Method to run if a bunch of data received
     loaded = NOOP
   } = {}) {
     if (!span) {
@@ -94,9 +95,15 @@ export default class {
       return Promise.reject(new Error(`fails to parse json: ${e.stack}`))
     }
 
-    await this._loaded(data)
+    await this._loaded(data, {
+      code,
+      span: this._span
+    })
+
+    return data
   }
 
+  // left-open and right-open
   async between ([from: Date, to: Date]) {
     const {
       map,
