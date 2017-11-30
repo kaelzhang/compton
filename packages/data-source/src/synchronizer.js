@@ -1,6 +1,7 @@
 export default class {
-  constructor (db) {
+  constructor (db, loader) {
     this._db = db
+    this._loader = loader
     this._lastUpdated = null
   }
 
@@ -11,5 +12,9 @@ export default class {
 
   async lastUpdated () {
     return this._lastUpdated || await this._db.lastUpdated()
+  }
+
+  sync ([from, to]) {
+    return this._loader.between([from, to])
   }
 }

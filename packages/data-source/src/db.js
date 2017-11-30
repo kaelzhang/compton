@@ -13,16 +13,21 @@ const isKnex = knex => {
   return knex && typeof knex.select === 'function'
 }
 
+const returnTrue = () => true
+
 export default class Client {
   constructor ({
     client,
     connection,
     code,
-    span
+    span,
+    // Function(time, span)
+    validate = returnTrue
   }) {
 
     this._code = code
     this._span = span
+    this._validate = validate
 
     this._client = isKnex(connection)
       ? connection
@@ -99,6 +104,7 @@ export default class Client {
   // TODO: BUG:
   // should detect if the stock market is closed.
   validate (time, value) {
+    return this._validate(time, this._span)
     // return value && time && Time(time, this._span).timestamp() === + time
   }
 

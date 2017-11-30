@@ -109,6 +109,7 @@ export const WEEK = {
   formatTime: dayString,
   parseTime: parseDay,
   closest (to) {
+    // Ends with the first friday of the next year
     return moment(to).add(1, 'y')
     .month(0)
     .day(5)

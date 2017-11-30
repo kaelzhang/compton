@@ -37,8 +37,10 @@ const dataSource = new DataSource({
   code: 'sz300131',
   loader: Loader,
 
-  // Always trading, ideally
-  isTrading: () => true
+  // Whether the given time of the span is trading
+  // - span: day, will not check hours and minutes
+  // - 
+  isTrading: ({time, span}) => true
 })
 
 const span = dataSource.span('MONTH')

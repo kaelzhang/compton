@@ -106,11 +106,10 @@ export default class {
   // left-open and right-open
   async between ([from: Date, to: Date]) {
     const {
-      map,
       parseTime
     } = this._preset
 
-    const tasks = map([from, to])
+    const tasks = this.map([from, to])
     .map(([from, to]) => this._queue.add(from, to))
 
     const rawData = await Promise.all(tasks)
@@ -152,12 +151,11 @@ export default class {
 
   async _getOne (time) {
     const {
-      map,
       formatTime
     } = this._preset
 
     const formated = formatTime(time)
-    const [from, to] = map([time, time])[0]
+    const [from, to] = this.map([time, time])[0]
     const data = await this._queue.add(from, to)
 
     const index = data.findIndex(datum => {
@@ -185,6 +183,10 @@ export default class {
     return length === 1
       ? this._getOne(times[0])
       : Promise.all(times.map(time => this._getOne(time)))
+  }
+
+  map ([from, to]) {
+    return this._preset.map([from, to])
   }
 
   _formatDatum (datum) {
