@@ -13,7 +13,6 @@ import {
 
 import request from 'request'
 
-
 test('nothing...', async t => {
   const connection = knex({
     client: 'mysql',
@@ -35,18 +34,15 @@ test('nothing...', async t => {
     }
   })
 
+  const span = source.span('DAY')
 
-  const singleResult = await source.get({
-    span: 'DAY',
-    time: + DATE
-  })
+  const singleResult = await span.get(DATE)
 
   console.log('single result', singleResult)
 
-  const betweenResult = await source.get({
-    span: 'DAY',
-    between: [ new Date(2017, 6, 2), + new Date(2017, 6, 5) ]
-  })
+  const betweenResult = await span.between([
+    new Date(2017, 6, 2), new Date(2017, 6, 5)
+  ])
 
   console.log('between result', betweenResult)
 })

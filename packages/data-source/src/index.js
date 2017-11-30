@@ -1,4 +1,5 @@
 import DB from './db'
+import Synchronizer from './synchronizer'
 import _LRU from 'lru-cache'
 import LCache from 'layered-cache'
 
@@ -46,7 +47,7 @@ export default class DataSource {
       return this._spans[span]
     }
 
-    return this._spans[span] = new DataSourceSpan(code, this._options)
+    return this._spans[span] = new DataSourceSpan(span, this._options)
   }
 }
 
@@ -67,17 +68,23 @@ class DataSourceSpan {
     maxCacheItems = 1000
   }) {
 
-    this._db = new DB({
+    const db = this._db = new DB({
       client,
       connection,
       code,
       span
     })
 
-    this._lru = new LRU(maxCacheItems)
+    const lru = new LRU(maxCacheItems)
 
-    this._synchronized = new LCache()
     this._loader = new loader(code, span, request)
+
+    this._source = new LCache([
+      lru,
+      db
+    ])
+
+    this._sync = new Synchronizer(db)
   }
 
   sync ([from, to]) {
@@ -85,14 +92,24 @@ class DataSourceSpan {
   }
 
   get (...times) {
-
+    const length = times.length
+    return length === 0
+      ? []
+      : length === 1
+        ? this._source.get(times[0])
+        : this._source.mget(...times)
   }
 
   between ([from, to]) {
+    const lastUpdated = this._sync.lastUpdated()
+    if (to <= lastUpdated) {
+      return this._db.between([from, to])
+    }
 
+    return this._loader.between([from, to])
   }
 
   latest (limit) {
-
+    return this._loader.latest(limit)
   }
 }

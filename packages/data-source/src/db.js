@@ -5,7 +5,7 @@ import map from 'array-map-sorted'
 import {
   candlestick
 } from './schema'
-import Time from './time'
+// import Time from './time'
 
 
 // There is not a good way to detect knex instance
@@ -62,7 +62,7 @@ export default class Client {
     .select('updated_to')
     .from(this._tableNameUpdated)
     .where({
-      code: this._code
+      code: this._code,
       span: this._span
     })
 
@@ -76,7 +76,7 @@ export default class Client {
   // Update the last updated time
   async updated (time) {
     await this._updatedReady()
-    
+
     const code = this._code
     const span = this._span
     const name = this._tableNameUpdated
@@ -99,7 +99,7 @@ export default class Client {
   // TODO: BUG:
   // should detect if the stock market is closed.
   validate (time, value) {
-    return value && time && Time(time, this._span).timestamp() === + time
+    // return value && time && Time(time, this._span).timestamp() === + time
   }
 
   // Get the candlestick from db
@@ -129,7 +129,7 @@ export default class Client {
   }
 
   _updatedReady () {
-    return this._prepareStatusTable.add()
+    return this._createLatestUpdatedTable.add()
   }
 
   _prepareStatusTable () {
