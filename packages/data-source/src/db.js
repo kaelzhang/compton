@@ -46,11 +46,6 @@ export default class Client {
 
   // Left-closed and right-closed
   async between ([from, to]) {
-    const updated = await this.updated(to)
-    if (!updated) {
-      return []
-    }
-
     const rows = await this._client
     .select()
     .from(this._tableName)
@@ -59,7 +54,10 @@ export default class Client {
     return Promise.all(rows.map(candlestick))
   }
 
-  async updated (time) {
+  // Get the last updated time
+  async lastUpdated () {
+    await this._updatedReady()
+
     const rows = await this._client
     .select('updated_to')
     .from(this._tableNameUpdated)
@@ -69,11 +67,32 @@ export default class Client {
     })
 
     if (!rows.length) {
-      return false
+      return new Date(0)
     }
 
-    const lastUpdated = new Date(rows[0])
-    return lastUpdated >= time
+    return new Date(rows[0])
+  }
+
+  // Update the last updated time
+  async updated (time) {
+    await this._updatedReady()
+    
+    const code = this._code
+    const span = this._span
+    const name = this._tableNameUpdated
+    const client = this._client
+
+    return client(name).insert(
+      client.select(code, span, time)
+      .whereNotExists(
+        client(name)
+        .select('code', 'span', 'updated_to')
+        .where({
+          code,
+          span
+        })
+      )
+    )
   }
 
   // Only save candlestick that is closed
@@ -106,16 +125,11 @@ export default class Client {
   }
 
   _ready () {
-    const span = this._span
-
-    if (this._isReady[span]) {
-      return Promise.resolve()
-    }
-
     return this._createDataTable.add()
-    .then(() => {
-      this._isReady[span] = true
-    })
+  }
+
+  _updatedReady () {
+    return this._prepareStatusTable.add()
   }
 
   _prepareStatusTable () {
@@ -137,7 +151,6 @@ export default class Client {
           'MINUTE60'
         ])
         table.dateTime('updated_to')
-        table.dateTime('time')
       })
     })
   }
