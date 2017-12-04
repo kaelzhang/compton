@@ -40,13 +40,12 @@ const fetch = (url, {
 const equal = ([timeA], [timeB]) => timeA === timeB
 // Join two datum,
 const reduce = concat.factory({equal})
-const NOOP = () => {}
 
 export default class {
   constructor (code, span, {
     request = fetch,
     // Method to run if a bunch of data received
-    loaded = NOOP
+    loaded = null
   } = {}) {
     if (!span) {
       throw new Error('span must be specified')
@@ -62,6 +61,7 @@ export default class {
     this._preset = preset
     this._request = request
     this._loaded = loaded
+    this._formatDatum = this._formatDatum.bind(this)
 
     const load = this._load.bind(this)
     this._queue = new Queue({load})
@@ -95,10 +95,13 @@ export default class {
       return Promise.reject(new Error(`fails to parse json: ${e.stack}`))
     }
 
-    await this._loaded(data, {
-      code,
-      span: this._span
-    })
+    if (this._loaded) {
+      const formated = data.map(this._formatDatum)
+      await this._loaded(formated, {
+        code,
+        span: this._span
+      })
+    }
 
     return data
   }
@@ -146,7 +149,7 @@ export default class {
 
     return data
     .slice(firstMet, secondMet)
-    .map(datum => this._formatDatum(datum))
+    .map(this._formatDatum)
   }
 
   async _getOne (time) {
@@ -171,7 +174,9 @@ export default class {
 
   async latest (limit) {
     const data = await this._queue.add('', '', limit)
-    return data.map(datum => this._formatDatum(datum))
+    return data
+    .slice(- limit)
+    .map(this._formatDatum)
   }
 
   async get (...times: Array<Date>) {

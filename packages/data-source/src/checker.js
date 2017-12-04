@@ -21,7 +21,7 @@ const BIG_SPANS = 'MONTH WEEK'.split(' ')
 const largerThanDay = span => !!~ BIG_SPANS.indexOf(span)
 
 
-export const isClosed = (time, span) => {
+export const isClosed = (time: Date, span) => {
   const current = new Date
 
   switch (span) {

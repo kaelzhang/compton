@@ -27,7 +27,9 @@ export default class Client {
 
     this._code = code
     this._span = span
-    this._validate = validate
+
+    // Only save candlestick that is closed
+    this.validate = validate
 
     this._client = isKnex(connection)
       ? connection
@@ -79,30 +81,18 @@ export default class Client {
   }
 
   // Update the last updated time
-  async updated (time) {
+  async updated (time: Date) {
     await this._updatedReady()
 
     const code = this._code
     const span = this._span
     const name = this._tableNameUpdated
-    const client = this._client
 
-    return client(name).insert(
-      client.select(code, span, time)
-      .whereNotExists(
-        client(name)
-        .select('code', 'span', 'updated_to')
-        .where({
-          code,
-          span
-        })
-      )
+    return this._client.raw(
+      `INSERT INTO ${name} (code, span, updated_to) VALUES (?, ?, ?) ` +
+      `ON DUPLICATE KEY UPDATE updated_to = ?`,
+      [code, span, time, time]
     )
-  }
-
-  // Only save candlestick that is closed
-  validate (time, value) {
-    return this._validate(time, this._span)
   }
 
   // Get the candlestick from db
@@ -146,14 +136,15 @@ export default class Client {
 
       return schema
       .createTableIfNotExists(name, table => {
-        table.increments('id').primary()
-        table.string('code', 10)
+        table.string('code', 10).comment('stock code')
         table.enu('span', [
           'DAY',
           'WEEK',
           'MINUTE60'
-        ])
-        table.dateTime('updated_to')
+        ]).comment('time interval')
+        table.dateTime('updated_to').comment('the latest updated date')
+        // compound primary keys
+        table.primary(['code', 'span'])
       })
     })
   }
