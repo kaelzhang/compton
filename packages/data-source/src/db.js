@@ -101,11 +101,8 @@ export default class Client {
   }
 
   // Only save candlestick that is closed
-  // TODO: BUG:
-  // should detect if the stock market is closed.
   validate (time, value) {
     return this._validate(time, this._span)
-    // return value && time && Time(time, this._span).timestamp() === + time
   }
 
   // Get the candlestick from db

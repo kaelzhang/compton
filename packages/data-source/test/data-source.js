@@ -46,3 +46,27 @@ test('nothing...', async t => {
 
   console.log('between result', betweenResult)
 })
+
+test.only('sync', async t => {
+  const connection = knex({
+    client: 'mysql',
+    connection: {
+      host: '127.0.0.1',
+      user: 'kael',
+      password: '123456',
+      database: 'compton'
+    }
+  })
+
+  const source = new DataSource({
+    connection,
+    code: CODE,
+    loader: Loader,
+    isTrading: (date) => {
+      const day = new Date(date).getDay()
+      return day !== 0 && day !== 6
+    }
+  })
+
+  await source.span('DAY').sync([new Date('2017-11-25')])
+})

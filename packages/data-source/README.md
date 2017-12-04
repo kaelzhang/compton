@@ -39,7 +39,7 @@ const dataSource = new DataSource({
 
   // Whether the given time of the span is trading
   // - span: day, will not check hours and minutes
-  // - 
+  // -
   isTrading: ({time, span}) => true
 })
 
@@ -87,6 +87,10 @@ Returns `Array<Candlestick>` data between a period.
 - **limit** `Number` limit the number of results.
 
 Returns `Array<Candlestick>`
+
+## span.sync([from, to])
+
+Sync data from `from` to `to`, and update db, and update last-updated record.
 
 ## License
 
