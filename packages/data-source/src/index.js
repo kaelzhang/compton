@@ -142,12 +142,7 @@ class DataSourceSpan {
 
   async sync ([from: Date, to: Date]) {
     const lastUpdated = await this.lastUpdated()
-
-    if (lastUpdated >= to) {
-      return
-    }
-
-    if (!to && + lastUpdated >= Time(new Date, this._span).timestamp()) {
+    if (this._alreadyUpdated(to, lastUpdated)) {
       return
     }
 
@@ -168,9 +163,21 @@ class DataSourceSpan {
         : this._source.mget(...times)
   }
 
+  _alreadyUpdated (to, lastUpdated) {
+    if (lastUpdated >= to) {
+      return true
+    }
+
+    if (!to && + lastUpdated >= Time(new Date, this._span).timestamp()) {
+      return true
+    }
+
+    return false
+  }
+
   between ([from, to]) {
     const lastUpdated = this.lastUpdated()
-    if (to <= lastUpdated) {
+    if (this._alreadyUpdated(to, lastUpdated)) {
       return this._db.between([from, to])
     }
 
