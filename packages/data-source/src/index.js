@@ -1,8 +1,8 @@
 import DB from './db'
-import Synchronizer from './synchronizer'
 import _LRU from 'lru-cache'
 import LCache from 'layered-cache'
-import {isClosed} from './checker'
+import {isClosed} from './compare'
+import {Time} from './utils'
 import findLastIndex from 'lodash.findlastindex'
 
 class LRU {
@@ -81,6 +81,7 @@ class DataSourceSpan {
 
     this._span = span
     this._isClosed = this._isClosed.bind(this)
+    this._lastUpdated = null
 
     const db = this._db = new DB({
       client,
@@ -103,17 +104,13 @@ class DataSourceSpan {
       isNotFound
     })
 
-    this._request = request
-
-    const updateLoader = new Loader(code, span, {
-      request: this._request,
+    this._updateLoader = new Loader(code, span, {
+      request,
       loaded: this._update.bind(this)
     })
-
-    this._sync = new Synchronizer(this._db, updateLoader)
   }
 
-  _isClosed (time) {
+  _isClosed (time: Date) {
     return isClosed(time, this._span)
   }
 
@@ -130,11 +127,36 @@ class DataSourceSpan {
     await this._source.mset(...closedDataPairs)
 
     const last = data[index]
-    await this._sync.updated(last.time)
+    await this.updated(last.time)
   }
 
-  sync ([from, to]) {
-    return this._sync.sync([from, to])
+  async updated (time: Date) {
+    await this._db.updated(time)
+    this._lastUpdated = time
+  }
+
+  async lastUpdated () {
+    return this._lastUpdated || (
+      this._lastUpdated = await this._db.lastUpdated())
+  }
+
+  async sync ([from: Date, to: Date]) {
+    const lastUpdated = await this.lastUpdated()
+
+    if (lastUpdated >= to) {
+      return
+    }
+
+    if (!to && + lastUpdated >= Time(new Date, this._span).timestamp()) {
+      return
+    }
+
+    if (lastUpdated >= from) {
+      await this._updateLoader.between([lastUpdated, to])
+      return
+    }
+
+    await this._updateLoader.between([from, to])
   }
 
   get (...times) {

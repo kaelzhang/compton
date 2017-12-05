@@ -77,7 +77,7 @@ export default class Client {
       return new Date(0)
     }
 
-    return new Date(rows[0])
+    return new Date(rows[0].updated_to)
   }
 
   // Update the last updated time

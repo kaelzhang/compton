@@ -75,7 +75,8 @@ export const MINUTE60 = {
 // Period: 1 year
 export const DAY = {
   // [from, to] is a left-close and right-OPEN region
-  url: (code, [from = '', before = ''], limit = 320) =>
+  // limit: use 321 to prevent qq cache
+  url: (code, [from = '', before = ''], limit = 321) =>
     `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},day,${from},${before},${limit},qfq`,
   // The key of the response data
   prop: 'qfqday',

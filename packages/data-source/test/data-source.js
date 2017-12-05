@@ -47,7 +47,7 @@ test('nothing...', async t => {
   console.log('between result', betweenResult)
 })
 
-test('sync', async t => {
+test.only('sync', async t => {
   const connection = knex({
     client: 'mysql',
     connection: {
