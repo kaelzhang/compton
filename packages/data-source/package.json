@@ -1,6 +1,6 @@
 {
   "name": "data-source",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "data-source for stock data",
   "main": "lib/index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "url": "https://github.com/kaelzhang/soros/issues"
   },
   "devDependencies": {
-    "data-source-loader-qq": "^5.0.0"
+    "data-source-loader-qq": "^5.0.1"
   },
   "dependencies": {
     "array-map-sorted": "^1.3.0",
