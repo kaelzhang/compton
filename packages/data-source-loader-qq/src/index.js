@@ -95,14 +95,6 @@ export default class {
       return Promise.reject(new Error(`fails to parse json: ${e.stack}`))
     }
 
-    if (this._loaded) {
-      const formated = data.map(this._formatDatum)
-      await this._loaded(formated, {
-        code,
-        span: this._span
-      })
-    }
-
     return data
   }
 
@@ -117,6 +109,14 @@ export default class {
 
     const rawData = await Promise.all(tasks)
     const data = reduce(...rawData)
+
+    if (this._loaded) {
+      const formated = data.map(this._formatDatum)
+      await this._loaded(formated, {
+        code: this._code,
+        span: this._span
+      })
+    }
 
     const length = data.length
     let i = -1

@@ -47,7 +47,7 @@ test('nothing...', async t => {
   console.log('between result', betweenResult)
 })
 
-test.only('sync', async t => {
+test('sync', async t => {
   const connection = knex({
     client: 'mysql',
     connection: {
@@ -68,5 +68,5 @@ test.only('sync', async t => {
     }
   })
 
-  await source.span('DAY').sync([new Date('2017-11-25')])
+  await source.span('DAY').sync([new Date('2007-01-01')])
 })
