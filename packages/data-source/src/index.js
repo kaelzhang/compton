@@ -169,7 +169,7 @@ class DataSourceSpan {
   }
 
   between ([from, to]) {
-    const lastUpdated = this._sync.lastUpdated()
+    const lastUpdated = this.lastUpdated()
     if (to <= lastUpdated) {
       return this._db.between([from, to])
     }
