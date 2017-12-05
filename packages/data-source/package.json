@@ -1,6 +1,6 @@
 {
   "name": "data-source",
-  "version": "5.0.4",
+  "version": "5.0.5",
   "description": "data-source for stock data",
   "main": "lib/index.js",
   "scripts": {
