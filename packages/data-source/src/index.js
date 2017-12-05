@@ -142,7 +142,8 @@ class DataSourceSpan {
 
   async sync ([from: Date, to: Date]) {
     const lastUpdated = await this.lastUpdated()
-    if (this._alreadyUpdated(to, lastUpdated)) {
+    const {already} = this._alreadyUpdated(to, lastUpdated)
+    if (already) {
       return
     }
 
@@ -164,21 +165,28 @@ class DataSourceSpan {
   }
 
   _alreadyUpdated (to, lastUpdated) {
-    if (lastUpdated >= to) {
-      return true
+    if (to) {
+      return lastUpdated >= to
+        // found in db
+        ? {already: true, to}
+        // need to fetch from remote
+        : {already: false, to}
     }
 
-    if (!to && + lastUpdated >= Time(new Date, this._span).timestamp()) {
-      return true
-    }
-
-    return false
+    to = new Date(Time(new Date, this._span).timestamp())
+    return lastUpdated >= to
+      // found in db
+      ? {already: true, to}
+      // remain `to` to undefined
+      : {already: false}
   }
 
-  between ([from, to]) {
-    const lastUpdated = this.lastUpdated()
-    if (this._alreadyUpdated(to, lastUpdated)) {
-      return this._db.between([from, to])
+  async between ([from, to]) {
+    const lastUpdated = await this.lastUpdated()
+    const check = this._alreadyUpdated(to, lastUpdated)
+
+    if (check.already) {
+      return this._db.between([from, check.to])
     }
 
     return this._loader.between([from, to])
