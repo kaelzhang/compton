@@ -126,8 +126,10 @@ class DataSourceSpan {
 
     await this._source.mset(...closedDataPairs)
 
-    const last = data[index]
-    await this.updated(last.time)
+    // Set the updated time to the current time,
+    // otherwise, if the stock is suspended, it will always try to sync.
+    const now = Time(new Date, this._span).timestamp()
+    await this.updated(new Date(now))
   }
 
   async updated (time: Date) {

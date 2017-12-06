@@ -24,7 +24,7 @@ const TIME_SPANS_MAP = {
 }
 
 
-export const Time = (time, span) => {
+export const Time = (time: Date, span) => {
   const Klass = TIME_SPANS_MAP[span]
   return new Klass(time)
 }
