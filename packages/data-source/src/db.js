@@ -244,6 +244,10 @@ export default class Client {
   }
 
   _mset (pairs) {
+    if (!pairs.length) {
+      return
+    }
+
     return this._client(this._tableName)
     .insert(pairs.map(([, value]) => write_value(value)))
   }

@@ -80,6 +80,7 @@ class DataSourceSpan {
   }) {
 
     this._span = span
+    this._code = code
     this._isClosed = this._isClosed.bind(this)
     this._lastUpdated = null
 
@@ -116,13 +117,13 @@ class DataSourceSpan {
 
   async _update (data) {
     const index = findLastIndex(data, ({time}) => this._isClosed(time))
-    if (~index) {
-      const closedDataPairs = data
-      .slice(0, index + 1)
-      .map(value => [value.time, value])
+    const closedDataPairs = !!~index
+      ? data
+        .slice(0, index + 1)
+        .map(value => [value.time, value])
+      : []
 
-      await this._source.mset(...closedDataPairs)
-    }
+    await this._source.mset(...closedDataPairs)
 
     // Set the updated time to the current time,
     // otherwise, if the stock is suspended, it will always try to sync.
@@ -144,14 +145,16 @@ class DataSourceSpan {
     const lastUpdated = await this.lastUpdated()
     const {already} = this._alreadyUpdated(to, lastUpdated)
     if (already) {
+      // console.log(this._code, 'skipped')
       return
     }
 
     if (lastUpdated >= from) {
+      // console.log(this._code, 'partial', [lastUpdated, to])
       await this._updateLoader.between([lastUpdated, to])
       return
     }
-
+    // console.log(this._code, 'full', [from, to])
     await this._updateLoader.between([from, to])
   }
 
