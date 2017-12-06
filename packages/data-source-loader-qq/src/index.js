@@ -41,7 +41,7 @@ const equal = ([timeA], [timeB]) => timeA === timeB
 // Join two datum,
 const reduce = concat.factory({equal})
 
-export default class {
+export default class Loader {
   constructor (code, span, {
     request = fetch,
     // Method to run if a bunch of data received
@@ -224,3 +224,5 @@ export default class {
     }
   }
 }
+
+Loader.request = fetch
