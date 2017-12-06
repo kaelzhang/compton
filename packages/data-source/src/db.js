@@ -136,13 +136,25 @@ export default class Client {
 
       return schema
       .createTableIfNotExists(name, table => {
-        table.string('code', 10).comment('stock code')
+        table.string('code', 10)
+        .notNullable()
+        .comment('stock code')
+
         table.enu('span', [
           'DAY',
           'WEEK',
           'MINUTE60'
-        ]).comment('time interval')
-        table.dateTime('updated_to').comment('the latest updated date')
+        ])
+        .notNullable()
+        .comment('time interval')
+
+        table.dateTime('updated_to')
+        .comment('the latest updated date')
+
+        table.timestamp('updated_at')
+        .notNullable()
+        .defaultTo(this._client.raw('CURRENT_TIMESTAMP'))
+
         // compound primary keys
         table.primary(['code', 'span'])
       })
@@ -181,12 +193,16 @@ export default class Client {
     .schema
     .createTableIfNotExists(name, table => {
       table.increments('id').primary()
-      table.float('open',   8, 3)
-      table.float('high',   8, 3)
-      table.float('low',    8, 3)
-      table.float('close',  8, 3)
-      table.integer('volume').unsigned()
-      table.dateTime('time')
+      table.float('open',   8, 3).notNullable()
+      table.float('high',   8, 3).notNullable()
+      table.float('low',    8, 3).notNullable()
+      table.float('close',  8, 3).notNullable()
+      table.integer('volume').unsigned().notNullable()
+      table.dateTime('time').notNullable()
+
+      table.timestamp('created_at')
+      .notNullable()
+      .defaultTo(this._client.raw('CURRENT_TIMESTAMP'))
     })
   }
 
