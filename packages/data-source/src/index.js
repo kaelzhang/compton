@@ -116,15 +116,13 @@ class DataSourceSpan {
 
   async _update (data) {
     const index = findLastIndex(data, ({time}) => this._isClosed(time))
-    if (!~index) {
-      return
+    if (~index) {
+      const closedDataPairs = data
+      .slice(0, index + 1)
+      .map(value => [value.time, value])
+
+      await this._source.mset(...closedDataPairs)
     }
-
-    const closedDataPairs = data
-    .slice(0, index + 1)
-    .map(value => [value.time, value])
-
-    await this._source.mset(...closedDataPairs)
 
     // Set the updated time to the current time,
     // otherwise, if the stock is suspended, it will always try to sync.
