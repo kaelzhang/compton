@@ -198,7 +198,7 @@ export default class Client {
       table.float('low',    8, 3).notNullable()
       table.float('close',  8, 3).notNullable()
       table.integer('volume').unsigned().notNullable()
-      table.dateTime('time').notNullable()
+      table.dateTime('time').unique().notNullable()
 
       table.timestamp('created_at')
       .notNullable()
