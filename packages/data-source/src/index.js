@@ -115,7 +115,7 @@ class DataSourceSpan {
     return isClosed(time, this._span)
   }
 
-  async _update (data) {
+  async _update (data, {requestTime} = {}) {
     const index = findLastIndex(data, ({time}) => this._isClosed(time))
     const closedDataPairs = !!~index
       ? data
@@ -127,8 +127,14 @@ class DataSourceSpan {
 
     // Set the updated time to the current time,
     // otherwise, if the stock is suspended, it will always try to sync.
-    const now = Time(new Date, this._span).timestamp()
-    await this.updated(new Date(now))
+    requestTime = requestTime || new Date
+    const nowCandleTimestamp = this._isClosed(requestTime)
+      ? Time(requestTime, this._span).timestamp()
+      // If the request time is not closed,
+      // then use the previous time of the span
+      : Time(requestTime, this._span).prev()
+
+    await this.updated(new Date(nowCandleTimestamp))
   }
 
   async updated (time: Date) {
@@ -145,16 +151,14 @@ class DataSourceSpan {
     const lastUpdated = await this.lastUpdated()
     const {already} = this._alreadyUpdated(to, lastUpdated)
     if (already) {
-      // console.log(this._code, 'skipped')
       return
     }
 
     if (lastUpdated >= from) {
-      // console.log(this._code, 'partial', [lastUpdated, to])
       await this._updateLoader.between([lastUpdated, to])
       return
     }
-    // console.log(this._code, 'full', [from, to])
+
     await this._updateLoader.between([from, to])
   }
 

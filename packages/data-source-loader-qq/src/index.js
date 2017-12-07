@@ -104,6 +104,7 @@ export default class Loader {
       parseTime
     } = this._preset
 
+    const requestTime = new Date
     const tasks = this.map([from, to])
     .map(([from, to]) => this._queue.add(from, to))
 
@@ -114,7 +115,8 @@ export default class Loader {
       const formated = data.map(this._formatDatum)
       await this._loaded(formated, {
         code: this._code,
-        span: this._span
+        span: this._span,
+        requestTime
       })
     }
 
