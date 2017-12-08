@@ -128,13 +128,18 @@ class DataSourceSpan {
     // Set the updated time to the current time,
     // otherwise, if the stock is suspended, it will always try to sync.
     requestTime = requestTime || new Date
-    const nowCandleTimestamp = this._isClosed(requestTime)
-      ? Time(requestTime, this._span).timestamp()
+    const updated_to = this._closestClosedTime(requestTime)
+    await this.updated(updated_to)
+  }
+
+  _closestClosedTime (time: Date): Date {
+    const closedTimestamp = this._isClosed(time)
+      ? Time(time, this._span).timestamp()
       // If the request time is not closed,
       // then use the previous time of the span
-      : Time(requestTime, this._span).prev()
+      : Time(time, this._span).prev()
 
-    await this.updated(new Date(nowCandleTimestamp))
+    return new Date(closedTimestamp)
   }
 
   async updated (time: Date) {
@@ -180,7 +185,7 @@ class DataSourceSpan {
         : {already: false, to}
     }
 
-    to = new Date(Time(new Date, this._span).timestamp())
+    to = this._closestClosedTime(new Date)
     return lastUpdated >= to
       // found in db
       ? {already: true, to}

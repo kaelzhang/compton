@@ -107,8 +107,8 @@ export default class Loader {
     } = this._preset
 
     const requestTime = new Date
-    const tasks = this.map([from, to])
-    .map(([from, to]) => this._queue.add(from, to))
+    const mapped = this.map([from, to])
+    const tasks = mapped.map(([from, to]) => this._queue.add(from, to))
 
     const rawData = await Promise.all(tasks)
     const data = reduce(...rawData)
