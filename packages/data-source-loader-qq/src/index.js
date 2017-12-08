@@ -90,12 +90,14 @@ export default class Loader {
     let data
 
     try {
-      data = access(JSON.parse(body), ['data', code, prop], [])
+      data = JSON.parse(body)
     } catch (e) {
       return Promise.reject(new Error(`fails to parse json: ${e.stack}`))
     }
 
-    return data
+    return typeof prop === 'function'
+      ? prop(data, {code})
+      : access(data, ['data', code, prop], [])
   }
 
   // left-open and right-open

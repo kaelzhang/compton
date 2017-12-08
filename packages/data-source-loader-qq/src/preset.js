@@ -1,6 +1,7 @@
 import range from 'lodash.range'
 import padStart from 'lodash.padstart'
 import moment from 'moment'
+import access from 'object-access'
 
 const date = d => new Date(d)
 const padNumber = number => padStart('' + number, 2, '0')
@@ -79,7 +80,9 @@ export const DAY = {
   url: (code, [from = '', before = ''], limit = 321) =>
     `http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${code},day,${from},${before},${limit},qfq`,
   // The key of the response data
-  prop: 'qfqday',
+  prop: (data, {code}) => access(data, ['data', code, 'day'])
+    || access(data, ['data', code, 'qfqday'])
+    || [],
 
   // Transform request time -> response time format
   // Date -> 2017-09-01
