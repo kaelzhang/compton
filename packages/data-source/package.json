@@ -52,6 +52,6 @@
     "mysql": "^2.15.0",
     "ready-queue": "^1.0.0",
     "skema": "^5.0.1",
-    "time-spans": "^3.1.0"
+    "time-spans": "^3.2.0"
   }
 }
