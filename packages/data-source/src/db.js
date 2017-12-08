@@ -1,4 +1,3 @@
-import knex from 'knex'
 import queue from 'ready-queue'
 import map from 'array-map-sorted'
 
@@ -6,12 +5,6 @@ import {
   candlestick
 } from './schema'
 // import Time from './time'
-
-
-// There is not a good way to detect knex instance
-const isKnex = knex => {
-  return knex && typeof knex.select === 'function'
-}
 
 const returnTrue = () => true
 
@@ -31,12 +24,7 @@ export default class Client {
     // Only save candlestick that is closed
     this.validate = validate
 
-    this._client = isKnex(connection)
-      ? connection
-      : knex({
-        client,
-        connection
-      })
+    this._client = connection
 
     this._tableName = `${this._span}_${this._code}`
     this._createDataTable = queue({
@@ -239,8 +227,10 @@ export default class Client {
   }
 
   _set (time, value) {
-    return this._client(this._tableName)
+    const sql = this._client(this._tableName)
     .insert(write_value(value))
+
+    return this._client.raw(addIgnore(sql))
   }
 
   _mset (pairs) {
@@ -248,11 +238,15 @@ export default class Client {
       return
     }
 
-    return this._client(this._tableName)
+    const sql = this._client(this._tableName)
     .insert(pairs.map(([, value]) => write_value(value)))
+
+    return this._client.raw(addIgnore(sql))
   }
 }
 
+// 'INSERT ...' -> 'INSERT IGNORE'
+const addIgnore = sql => sql.replace(/^insert/i, 'INSERT IGNORE')
 
 function write_value (value) {
   const {
