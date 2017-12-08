@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "array-map-sorted": "^1.3.0",
+    "err-object": "^1.0.2",
     "layered-cache": "^2.1.0",
     "lazy-concat": "^1.0.2",
     "lodash.findlastindex": "^4.6.0",

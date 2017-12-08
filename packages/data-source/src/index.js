@@ -4,6 +4,7 @@ import LCache from 'layered-cache'
 import {isClosed} from './compare'
 import {Time} from './utils'
 import findLastIndex from 'lodash.findlastindex'
+import err from 'err-object'
 
 class LRU {
   constructor (max, validate) {
@@ -76,13 +77,15 @@ class DataSourceSpan {
     //   whether a stock market is trading
     isTrading,
     request,
-    maxCacheItems = 1000
+    maxCacheItems = 1000,
+    offline = false
   }) {
 
     this._span = span
     this._code = code
     this._isClosed = this._isClosed.bind(this)
     this._lastUpdated = null
+    this._offline = offline
 
     const db = this._db = new DB({
       client,
@@ -95,13 +98,17 @@ class DataSourceSpan {
     const lru = new LRU(maxCacheItems, this._isClosed)
 
     const loader = this._loader = new Loader(code, span, {request})
-
-    this._source = new LCache([
+    const layers = [
       new Filter(isTrading),
       lru,
-      db,
-      loader
-    ], {
+      db
+    ]
+
+    if (!offline) {
+      layers.push(loader)
+    }
+
+    this._source = new LCache(layers, {
       isNotFound
     })
 
@@ -153,6 +160,14 @@ class DataSourceSpan {
   }
 
   async sync ([from: Date, to: Date], force) {
+    if (this._offline) {
+      throw err({
+        message: 'could not sync when offline is true',
+        name: 'SyncWhenOfflineError',
+        code: 'OFFLINE_SYNC'
+      })
+    }
+
     if (force) {
       await this._updateLoader.between([from, to])
       return
@@ -199,6 +214,10 @@ class DataSourceSpan {
   }
 
   async between ([from, to]) {
+    if (this._offline) {
+      return this._db.between([from, check.to])
+    }
+
     const lastUpdated = await this.lastUpdated()
     const check = this._alreadyUpdated(to, lastUpdated)
 
