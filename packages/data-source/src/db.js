@@ -158,11 +158,7 @@ export default class Client {
         return
       }
 
-      // If no
-      Promise.all([
-        this._createTable(name),
-        // create or update other records
-      ])
+      return this._createTable(name)
     })
   }
 
@@ -246,7 +242,7 @@ export default class Client {
 }
 
 // 'INSERT ...' -> 'INSERT IGNORE'
-const addIgnore = sql => sql.replace(/^insert/i, 'INSERT IGNORE')
+const addIgnore = sql => sql.toString().replace(/^insert/i, 'INSERT IGNORE')
 
 function write_value (value) {
   const {
