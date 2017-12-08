@@ -152,7 +152,12 @@ class DataSourceSpan {
       this._lastUpdated = await this._db.lastUpdated())
   }
 
-  async sync ([from: Date, to: Date]) {
+  async sync ([from: Date, to: Date], force) {
+    if (force) {
+      await this._updateLoader.between([from, to])
+      return
+    }
+
     const lastUpdated = await this.lastUpdated()
     const {already} = this._alreadyUpdated(to, lastUpdated)
     if (already) {
