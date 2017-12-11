@@ -40,7 +40,7 @@ export default class Client {
   }
 
   // Left-closed and right-closed
-  async between ([from, to]) {
+  async between ([from: Date, to: Date]) {
     const rows = await this._client
     .select()
     .from(this._tableName)

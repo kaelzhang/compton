@@ -215,7 +215,7 @@ class DataSourceSpan {
 
   async between ([from, to]) {
     if (this._offline) {
-      return this._db.between([from, check.to])
+      return this._db.between([from, to || new Date])
     }
 
     const lastUpdated = await this.lastUpdated()
